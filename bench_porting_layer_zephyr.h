@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
 #ifndef PORTING_LAYER_ZEPHYR_H_
 #define PORTING_LAYER_ZEPHYR_H_
 

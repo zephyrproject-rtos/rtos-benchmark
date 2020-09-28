@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2020 Intel Corporation
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "bench_api.h"
 #include "stdio.h"
@@ -10,24 +6,7 @@
 /* Number of give / take cycles on semaphore */
 #define NUM_TEST_SEM 1000
 
-void bench_sem_signal_release_initialize(void);
-void bench_sem_signal_release(void);
-
-int main()
-{
-	bench_initialize_test(bench_sem_signal_release_initialize);
-	return 0;
-}
-
-void bench_sem_signal_release_initialize() 
-{
-	bench_sem_create(0);
-	bench_timing_init();
-
-	bench_sem_signal_release();
-}
-
-void bench_sem_signal_release(void) 
+void bench_sem_signal_release(void)
 {
 	int i;
 	uint32_t diff;
@@ -45,12 +24,12 @@ void bench_sem_signal_release(void)
 
 	timestamp_end = bench_timing_counter_get();
 
-	bench_timing_end();
+	bench_timing_stop();
 
 	diff = bench_timing_cycles_get(timestamp_start, timestamp_end);
 
-	printf("Average semaphore signal time %i cycles \n", diff / NUM_TEST_SEM);
-	
+	printf("Average semaphore signal time %i cycles\n", diff / NUM_TEST_SEM);
+
 	/* Measure average semaphore test time */
 	bench_timing_start();
 
@@ -62,9 +41,24 @@ void bench_sem_signal_release(void)
 
 	timestamp_end = bench_timing_counter_get();
 
-	bench_timing_end();
+	bench_timing_stop();
 
 	diff = bench_timing_cycles_get(timestamp_start, timestamp_end);
 
-	printf("Average semaphore test time %i cycles \n", diff / NUM_TEST_SEM);
+	printf("Average semaphore test time %i cycles\n", diff / NUM_TEST_SEM);
+}
+
+void bench_sem_signal_release_initialize(void)
+{
+	bench_timing_init();
+
+	bench_sem_create(0, 0, NUM_TEST_SEM);
+
+	bench_sem_signal_release();
+}
+
+int main(void)
+{
+	bench_test_init(bench_sem_signal_release_initialize);
+	return 0;
 }
