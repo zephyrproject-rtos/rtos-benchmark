@@ -4,14 +4,17 @@
 #include "bench_porting_layer_zephyr.h"
 #include <zephyr.h>
 #include <timing/timing.h>
+#include <irq_offload.h>
 
 #define MAX_THREADS 10
 #define STACK_SIZE 512
 #define MAX_SEMAPHORES 1
+#define MAX_MUTEXES 1
 
 static K_THREAD_STACK_ARRAY_DEFINE(stacks, MAX_THREADS, STACK_SIZE);
 static struct k_thread threads[MAX_THREADS];
 static struct k_sem semaphores[MAX_SEMAPHORES];
+static struct k_mutex mutexes[MAX_MUTEXES];
 
 void bench_test_init(void (*test_init_function)(void))
 {
@@ -52,12 +55,17 @@ void bench_timing_init(void)
 	timing_init();
 }
 
+void bench_sync_ticks(void)
+{
+	k_sleep(K_TICKS(1));
+}
+
 void bench_timing_start(void)
 {
 	timing_start();
 }
 
-void bench_timing_end(void)
+void bench_timing_stop(void)
 {
 	timing_stop();
 }
@@ -102,3 +110,25 @@ int bench_sem_take(int sem_id)
 	}
 }
 
+int bench_mutex_create(int mutex_id)
+{
+	k_mutex_init(&mutexes[mutex_id]);
+	return BENCH_SUCCESS;
+}
+
+int bench_mutex_lock(int mutex_id)
+{
+	k_mutex_lock(&mutexes[mutex_id], K_FOREVER);
+	return BENCH_SUCCESS;
+}
+
+int bench_mutex_unlock(int mutex_id)
+{
+	k_mutex_unlock(&mutexes[mutex_id]);
+	return BENCH_SUCCESS;
+}
+
+void bench_irq_offload(const void *irq_offload_routine, const void *parameter)
+{
+	irq_offload(irq_offload_routine, parameter);
+}
