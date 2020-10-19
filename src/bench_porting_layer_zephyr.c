@@ -8,17 +8,23 @@
 
 #define MAX_THREADS 10
 #define STACK_SIZE 512
-#define MAX_SEMAPHORES 1
+#define MAX_SEMAPHORES 2
 #define MAX_MUTEXES 1
 
 static K_THREAD_STACK_ARRAY_DEFINE(stacks, MAX_THREADS, STACK_SIZE);
 static struct k_thread threads[MAX_THREADS];
 static struct k_sem semaphores[MAX_SEMAPHORES];
 static struct k_mutex mutexes[MAX_MUTEXES];
+static struct k_work work;
 
 void bench_test_init(void (*test_init_function)(void))
 {
 	(test_init_function)();
+}
+
+void bench_set_current_thread_prio(int prio)
+{
+	k_thread_priority_set(k_current_get(), prio);
 }
 
 int bench_thread_create(int thread_id, const char *thread_name, int priority,
@@ -29,6 +35,7 @@ int bench_thread_create(int thread_id, const char *thread_name, int priority,
 				STACK_SIZE,	(k_thread_entry_t) entry_function,
 				NULL, NULL, NULL,
 				priority, 0, K_FOREVER);
+		k_thread_name_set(&threads[thread_id], thread_name);
 		return BENCH_SUCCESS;
 	} else {
 		return BENCH_ERROR;
@@ -47,6 +54,41 @@ int bench_thread_resume(int thread_id)
 		k_thread_resume(thread);
 	}
 
+	return BENCH_SUCCESS;
+}
+
+int bench_thread_suspend(int thread_id)
+{
+	k_thread_suspend(&threads[thread_id]);
+	return BENCH_SUCCESS;
+}
+
+int bench_thread_abort(int thread_id)
+{
+	k_thread_abort(&threads[thread_id]);
+	return BENCH_SUCCESS;
+}
+
+void bench_yield(void)
+{
+	k_yield();
+}
+
+int bench_offload_setup(void)
+{
+	// Zephyr provides system workqueue; no setup required to offload work
+	return BENCH_SUCCESS;
+}
+
+int bench_offload_create_work(void (*worker))
+{
+	k_work_init(&work, worker);
+	return BENCH_SUCCESS;
+}
+
+int bench_offload_submit_work(void)
+{
+	k_work_submit(&work);
 	return BENCH_SUCCESS;
 }
 

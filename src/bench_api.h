@@ -10,9 +10,18 @@
 
 void bench_test_init(void (*test_init_function)(void));
 
+void bench_set_current_thread_prio(int prio);
 int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	void (*entry_function)(void));
 int bench_thread_resume(int thread_id);
+int bench_thread_suspend(int thread_id);
+int bench_thread_abort(int thread_id);
+
+void bench_yield(void);
+
+int bench_offload_setup(void);
+int bench_offload_create_work(void (*worker_function)(void));
+int bench_offload_submit_work(void);
 
 void bench_timing_init(void);
 void bench_sync_ticks(void);

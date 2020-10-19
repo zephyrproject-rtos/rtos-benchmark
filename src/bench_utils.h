@@ -24,5 +24,7 @@
 #define PRINT_STATS_AVG(x, y, counter)	\
 	PRINT_F(x, y / counter, (uint32_t)timing_cycles_to_ns_avg(y, counter))
 
+#define PRINT_OVERFLOW_ERROR()			\
+	printk(" Error: tick occurred\n")
 
 #endif

@@ -1,3 +1,4 @@
+trace/
 build/
 .vscode/
 *.code-workspace
