@@ -1,11 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * @file Measure time for semaphore give and take
+ *
+ * This file contains the test that measures semaphore give and
+ * take time in one thread.
+ */
+
 #include "bench_api.h"
 #include "stdio.h"
 
 /* Number of give / take cycles on semaphore */
 #define NUM_TEST_SEM 1000
 
+/**
+ * @brief Test main function
+ *
+ * Repeatedly give and then take semaphore and calculate average time.
+ */
 void bench_sem_signal_release(void)
 {
 	int i;
@@ -26,7 +38,7 @@ void bench_sem_signal_release(void)
 
 	bench_timing_stop();
 
-	diff = bench_timing_cycles_get(timestamp_start, timestamp_end);
+	diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
 
 	printf("Average semaphore signal time %i cycles\n", diff / NUM_TEST_SEM);
 
@@ -43,12 +55,15 @@ void bench_sem_signal_release(void)
 
 	bench_timing_stop();
 
-	diff = bench_timing_cycles_get(timestamp_start, timestamp_end);
+	diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
 
 	printf("Average semaphore test time %i cycles\n", diff / NUM_TEST_SEM);
 }
 
-void bench_sem_signal_release_initialize(void)
+/**
+ * @brief Test setup function
+ */
+void bench_sem_signal_release_init(void)
 {
 	bench_timing_init();
 
@@ -59,6 +74,6 @@ void bench_sem_signal_release_initialize(void)
 
 int main(void)
 {
-	bench_test_init(bench_sem_signal_release_initialize);
+	bench_test_init(bench_sem_signal_release_init);
 	return 0;
 }

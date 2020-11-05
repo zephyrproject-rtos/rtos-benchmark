@@ -6,11 +6,20 @@
 #include <timing/timing.h>
 #include <irq_offload.h>
 
+/*
+ * Constants.
+ */
 #define MAX_THREADS 10
 #define STACK_SIZE 512
 #define MAX_SEMAPHORES 2
 #define MAX_MUTEXES 1
 
+/*
+ * Storage for data structures to be declared and used.
+ *
+ * For our implementation, the ID of a data structure is its position
+ * in the array where it is stored.
+ */
 static K_THREAD_STACK_ARRAY_DEFINE(stacks, MAX_THREADS, STACK_SIZE);
 static struct k_thread threads[MAX_THREADS];
 static struct k_sem semaphores[MAX_SEMAPHORES];
@@ -22,14 +31,16 @@ void bench_test_init(void (*test_init_function)(void))
 	(test_init_function)();
 }
 
-void bench_set_current_thread_prio(int prio)
+void bench_thread_set_priority(int priority)
 {
-	k_thread_priority_set(k_current_get(), prio);
+	k_thread_priority_set(k_current_get(), priority);
 }
 
 int bench_thread_create(int thread_id, const char *thread_name, int priority,
-		void (*entry_function)(void))
+	void (*entry_function)(void *), void *args)
 {
+	ARG_UNUSED(args);
+
 	if (thread_id >= 0 && thread_id < MAX_THREADS) {
 		k_thread_create(&threads[thread_id], stacks[thread_id],
 				STACK_SIZE,	(k_thread_entry_t) entry_function,
@@ -42,31 +53,24 @@ int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	}
 }
 
-int bench_thread_resume(int thread_id)
+void bench_thread_start(int thread_id)
 {
-	struct k_thread *thread;
-
-	thread = &threads[thread_id];
-
-	if (thread->base.thread_state & _THREAD_PRESTART) {
-		k_thread_start(thread);
-	} else {
-		k_thread_resume(thread);
-	}
-
-	return BENCH_SUCCESS;
+	k_thread_start(&threads[thread_id]);
 }
 
-int bench_thread_suspend(int thread_id)
+void bench_thread_resume(int thread_id)
+{
+	k_thread_resume(&threads[thread_id]);
+}
+
+void bench_thread_suspend(int thread_id)
 {
 	k_thread_suspend(&threads[thread_id]);
-	return BENCH_SUCCESS;
 }
 
-int bench_thread_abort(int thread_id)
+void bench_thread_abort(int thread_id)
 {
 	k_thread_abort(&threads[thread_id]);
-	return BENCH_SUCCESS;
 }
 
 void bench_yield(void)
@@ -74,22 +78,19 @@ void bench_yield(void)
 	k_yield();
 }
 
-int bench_offload_setup(void)
+void bench_offload_setup(void)
 {
-	// Zephyr provides system workqueue; no setup required to offload work
-	return BENCH_SUCCESS;
+	// Zephyr has a system workqueue; no setup is required to offload work
 }
 
-int bench_offload_create_work(void (*worker))
+void bench_offload_create_work(void (*worker_function)(bench_work *))
 {
-	k_work_init(&work, worker);
-	return BENCH_SUCCESS;
+	k_work_init(&work, (k_work_handler_t) worker_function);
 }
 
-int bench_offload_submit_work(void)
+void bench_offload_submit_work(void)
 {
-	k_work_submit(&work);
-	return BENCH_SUCCESS;
+	k_work_submit(&work); // Submit work to system workqueue
 }
 
 void bench_timing_init(void)
@@ -117,9 +118,9 @@ bench_time_t bench_timing_counter_get(void)
 	return timing_counter_get();
 }
 
-uint32_t bench_timing_cycles_get(bench_time_t time_start, bench_time_t time_end)
+uint32_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_end)
 {
-	return timing_cycles_get(&time_start, &time_end);
+	return timing_cycles_get(time_start, time_end);
 }
 
 uint64_t bench_timing_cycles_to_ns(uint64_t cycles)
@@ -133,23 +134,15 @@ int bench_sem_create(int sem_id, int initial_count, int maximum_count)
 	return BENCH_SUCCESS;
 }
 
-int bench_sem_give(int sem_id)
+void bench_sem_give(int sem_id)
 {
 	k_sem_give(&semaphores[sem_id]);
-	return BENCH_SUCCESS;
 }
 
 int bench_sem_take(int sem_id)
 {
-	int ret;
-
-	ret = k_sem_take(&semaphores[sem_id], K_FOREVER);
-
-	if (ret == 0) {
-		return BENCH_SUCCESS;
-	} else {
-		return BENCH_ERROR;
-	}
+	k_sem_take(&semaphores[sem_id], K_FOREVER);
+	return BENCH_SUCCESS;
 }
 
 int bench_mutex_create(int mutex_id)
