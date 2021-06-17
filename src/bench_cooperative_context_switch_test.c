@@ -100,7 +100,7 @@ void bench_coop_ctx_switch(void)
 	bench_timing_stop();
 }
 
-void bench_interrupt_latency_init(void)
+void bench_interrupt_latency_init(void *arg)
 {
 	bench_timing_init();
 

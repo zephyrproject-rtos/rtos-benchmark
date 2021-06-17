@@ -61,7 +61,7 @@ void bench_sem_context_switch_low_prio_give(void)
 /**
  * @brief Test setup function
  */
-void bench_sem_context_switch_init(void)
+void bench_sem_context_switch_init(void *arg)
 {
 	bench_timing_init();
 

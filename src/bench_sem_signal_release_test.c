@@ -8,7 +8,8 @@
  */
 
 #include "bench_api.h"
-#include "stdio.h"
+#include "bench_utils.h"
+
 
 /* Number of give / take cycles on semaphore */
 #define NUM_TEST_SEM 1000
@@ -18,10 +19,10 @@
  *
  * Repeatedly give and then take semaphore and calculate average time.
  */
-void bench_sem_signal_release(void)
+void bench_sem_signal_release()
 {
 	int i;
-	uint32_t diff;
+	unsigned int diff;
 	bench_time_t timestamp_start;
 	bench_time_t timestamp_end;
 
@@ -40,7 +41,7 @@ void bench_sem_signal_release(void)
 
 	diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
 
-	printf("Average semaphore signal time %i cycles\n", diff / NUM_TEST_SEM);
+	PRINT_STATS("Average semaphore signal time", diff / NUM_TEST_SEM);
 
 	/* Measure average semaphore test time */
 	bench_timing_start();
@@ -57,13 +58,13 @@ void bench_sem_signal_release(void)
 
 	diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
 
-	printf("Average semaphore test time %i cycles\n", diff / NUM_TEST_SEM);
+	PRINT_STATS("Average semaphore test time", diff / NUM_TEST_SEM);
 }
 
 /**
  * @brief Test setup function
  */
-void bench_sem_signal_release_init(void)
+void bench_sem_signal_release_init(void *param)
 {
 	bench_timing_init();
 

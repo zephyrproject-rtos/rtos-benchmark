@@ -58,7 +58,7 @@ void bench_mutex_lock_unlock(void)
 /**
  * @brief Test setup function
  */
-void bench_mutex_lock_unlock_init(void)
+void bench_mutex_lock_unlock_init(void *arg)
 {
 	bench_mutex_create(0);
 	bench_timing_init();

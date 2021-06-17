@@ -94,7 +94,7 @@ void bench_suspend_resume(void)
 /**
  * @brief Test setup function
  */
-void bench_interrupt_latency_init(void)
+void bench_interrupt_latency_init(void *arg)
 {
 	bench_timing_init();
 

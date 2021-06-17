@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-#include "bench_api.h"
+#include "../../src/bench_api.h"
 #include "bench_porting_layer_zephyr.h"
 #include <zephyr.h>
 #include <timing/timing.h>
@@ -26,9 +26,10 @@ static struct k_sem semaphores[MAX_SEMAPHORES];
 static struct k_mutex mutexes[MAX_MUTEXES];
 static struct k_work work;
 
-void bench_test_init(void (*test_init_function)(void))
+void bench_test_init(void (*test_init_function)(void *))
 {
-	(test_init_function)();
+	void *param = NULL;
+	(test_init_function)(param);
 }
 
 void bench_thread_set_priority(int priority)
@@ -118,12 +119,12 @@ bench_time_t bench_timing_counter_get(void)
 	return timing_counter_get();
 }
 
-uint32_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_end)
+bench_time_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_end)
 {
 	return timing_cycles_get(time_start, time_end);
 }
 
-uint64_t bench_timing_cycles_to_ns(uint64_t cycles)
+bench_time_t bench_timing_cycles_to_ns(bench_time_t cycles)
 {
 	return timing_cycles_to_ns(cycles);
 }

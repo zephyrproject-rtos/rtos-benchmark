@@ -6,7 +6,12 @@
 #define BENCH_SUCCESS 0 /* Value returned when operation succeeds */
 #define BENCH_ERROR 1 /* Value returned when operation fails */
 
-#include "bench_porting_layer_zephyr.h"
+#ifdef ZEPHYR
+#include "../zephyr/src/bench_porting_layer_zephyr.h"
+#endif /* ZEPHYR */
+#ifdef FREERTOS
+#include "../freertos/bench_porting_layer_freertos.h"
+#endif /* FREERTOS */
 
 /**
  * @brief Call test initialization function
@@ -15,7 +20,7 @@
  *
  * @param test_init_function     The test initialization function
  */
-void bench_test_init(void (*test_init_function)(void));
+void bench_test_init(void (*test_init_function)(void *));
 
 /**
  * @brief Set priority of current thread
@@ -155,7 +160,7 @@ bench_time_t bench_timing_counter_get(void);
  * @param time_end Pointer to counter at stop of a measured execution
  * @return Number of cycles between start and end
  */
-uint32_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_end);
+bench_time_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_end);
 
 /**
  * @brief Convert number of @p cycles into nanoseconds
@@ -163,7 +168,7 @@ uint32_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_en
  * @param cycles Number of cycles
  * @return Converted time value
  */
-uint64_t bench_timing_cycles_to_ns(uint64_t cycles);
+bench_time_t bench_timing_cycles_to_ns(bench_time_t cycles);
 
 /**
  * @brief Create a semaphore
@@ -239,4 +244,4 @@ int bench_mutex_unlock(int mutex_id);
  */
 void bench_irq_offload(const void *irq_offload_routine, const void *parameter);
 
-#endif
+#endif /* BENCH_API_H */

@@ -6,17 +6,17 @@
 #include <stdio.h>
 
 #ifdef CSV_FORMAT_OUTPUT
-#define FORMAT "%-60s,%8u,%8u\n"
+#define FORMAT "%-50s,%8u,%8u\n"
 #else
-#define FORMAT "%-60s:%8u cycles , %8u ns\n"
+#define FORMAT "%-50s:%8u cycles , %8u ns\n"
 #endif
 
-#define PRINT_F(...)						\
-	{							\
-		char sline[256];				\
-		snprintk(sline, 254, FORMAT, ##__VA_ARGS__);	\
-		printf("%s", sline);					\
-	}
+#ifdef ZEPHYR
+#include "../zephyr/src/bench_porting_layer_zephyr.h"
+#endif /* ZEPHYR */
+#ifdef FREERTOS
+#include "../freertos/bench_porting_layer_freertos.h"
+#endif /* FREERTOS */
 
 #define PRINT_STATS(x, y) \
 	PRINT_F(x, y, (uint32_t) bench_timing_cycles_to_ns(y))

@@ -96,7 +96,7 @@ void bench_thread_switch_yield(void)
 /**
  * @brief Test setup function
  */
-void bench_thread_switch_yield_init(void)
+void bench_thread_switch_yield_init(void *arg)
 {
 	bench_timing_init();
 

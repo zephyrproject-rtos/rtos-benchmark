@@ -1,5 +1,18 @@
-trace/
-build/
 .vscode/
 *.code-workspace
 .gdbinit
+
+# Zephyr
+trace/
+build/
+
+# FreeRTOS
+SDK_2.8.2_FRDM-K64F/
+CMakeFiles/
+debug/
+release/
+build_log.txt
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+output.map
