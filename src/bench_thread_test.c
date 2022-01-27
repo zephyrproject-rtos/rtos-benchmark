@@ -5,106 +5,333 @@
  *
  * @brief Measure common thread operations
  *
- * Measure time to create and name, start, suspend, resume, and abort thread.
+ * Broadly speaking, this module measures five (5) basic thread operations.
+ * 1. Time to create and name a thread.
+ * 2. Time to start a thread.
+ *    A. Started thread is of lower priority (no context switch)
+ *    B. Started thread is of higher priority (context switch)
+ * 3. Time to suspend a thread.
+ *    A. Suspended thread was not running when suspended (no context switch)
+ *    B. Suspended thread was running when suspended (context switch)
+ * 4. Time to resume a thread
+ *    A. Resumed thread is of lower priority (no context switch)
+ *    B. Resumed thread is of higher priority (context switch)
+ * 5. Time to naturally terminate a running thread
+ *
+ * This benchmark test assumes a uniprocessor system.
  */
 
 #include "bench_api.h"
 #include "bench_utils.h"
 
-static bench_time_t timestamp_start_create_c;
-static bench_time_t timestamp_end_create_c;
-static bench_time_t timestamp_start_start_c;
-static bench_time_t timestamp_start_suspend_c;
-static bench_time_t timestamp_end_suspend_c;
-static bench_time_t timestamp_start_resume_c;
-static bench_time_t timestamp_end_resume_c;
+#define THREAD_LOW      0
+#define THREAD_HIGH     1
 
-static bench_time_t timestamp_start_abort_1;
-static bench_time_t timestamp_end_abort_1;
+#define MAIN_PRIORITY  10    /* Priority of main thread in the system */
+
+static bench_time_t helper_start;        /* helper thread start timestamp */
+static bench_time_t helper_end;          /* helper thread end timestamp */
+
+/*
+ * Each set of times are comprsied of the following:
+ * [0]: mean average value
+ * [1]: minimum value
+ * [2]: maximum value
+ * [3]: total of all iterations
+ */
+
+static bench_time_t time_to_create[4];    /* time to create a thread */
+static bench_time_t time_to_start[4];     /* time to start a thread */
+static bench_time_t time_to_suspend[4];   /* time to suspend a thread */
+static bench_time_t time_to_resume[4];    /* time to resume a thread */
+static bench_time_t time_to_terminate[4]; /* time to terminate a thread */
 
 /**
- * @brief Test helper function
- *
- * Help measure thread operations.
+ * @brief  Reset a set of times
  */
-void bench_thread_suspend_resume(void *args)
+static void reset_times(bench_time_t *t)
 {
-	ARG_UNUSED(args);
-
-	timestamp_start_suspend_c = timing_counter_get();
-	bench_thread_suspend(1);
-
-	timestamp_start_resume_c = timing_counter_get();
+	t[0] = 0;                  /* Mean average time */
+	t[1] = (bench_time_t) -1;  /* Minimum time */
+	t[2] = 0;                  /* Maximum time */
+	t[3] = 0;                  /* Total time */
 }
 
 /**
- * @brief Test main function
- *
- * Measure thread operations.
+ * @brief Reset time statistics
  */
-void bench_suspend_resume(void)
+static void reset_time_stats(void)
 {
-	uint32_t diff;
+	reset_times(time_to_create);
+	reset_times(time_to_start);
+	reset_times(time_to_suspend);
+	reset_times(time_to_resume);
+	reset_times(time_to_terminate);
+}
 
-	bench_timing_start();
+/**
+ * @brief Update time statistics
+ *
+ * Updates the mean, minimum, maximum and totals for the given time set.
+ */
+static void update_times(bench_time_t *t, bench_time_t value,
+			 uint32_t iteration)
+{
+	if (value < t[1]) {    /* Update minimum value if necessary */
+		t[1] = value;
+	}
 
-	/* Get time measurements */
-	timestamp_start_create_c = bench_timing_counter_get();
+	if (value > t[2]) {    /* Update maximum value if necessary */
+		t[2] = value;
+	}
 
-	bench_thread_create(0, "thread_suspend_resume", 6, bench_thread_suspend_resume, NULL);
+	/* Update sum total of times and re-calculate mean average */
 
-	timestamp_end_create_c = bench_timing_counter_get();
+	t[3] += value;
+	t[0] = t[3] / iteration;
+}
 
-	timestamp_start_start_c = bench_timing_counter_get();
-	bench_thread_start(0);
+/**
+ * @brief Report the collected statistics
+ *
+ * This routine reports the collected times. It is used for both reporting
+ * times that involved a context and those that did not. If there were
+ * not any times collected for a given measurement, its mean average is
+ * recorded as 0 and nothing will be printed.
+ *
+ * @param description A string used for additional information about what is
+ *        being measured: "(context switch)" or "(no context switch)"
+ */
+static void report_stats(const char *description)
+{
+	if (time_to_start[0] != 0) {
+		printf("Start a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
+		       description,
+		       bench_timing_cycles_to_ns(time_to_start[1]),
+		       bench_timing_cycles_to_ns(time_to_start[2]),
+		       bench_timing_cycles_to_ns(time_to_start[0]));
+	}
 
-	timestamp_end_suspend_c = bench_timing_counter_get();
-	bench_thread_resume(0);
+	printf("Suspend a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
+	       description,
+	       bench_timing_cycles_to_ns(time_to_suspend[1]),
+	       bench_timing_cycles_to_ns(time_to_suspend[2]),
+	       bench_timing_cycles_to_ns(time_to_suspend[0]));
 
-	timestamp_end_resume_c = bench_timing_counter_get();
+	printf("Resume a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
+	       description,
+	       bench_timing_cycles_to_ns(time_to_resume[1]),
+	       bench_timing_cycles_to_ns(time_to_resume[2]),
+	       bench_timing_cycles_to_ns(time_to_resume[0]));
 
-	/* Print results */
-	diff = bench_timing_cycles_get(&timestamp_start_create_c,
-				 &timestamp_end_create_c);
-	PRINT_STATS("Time to create a thread (without start)", diff);
+	if (time_to_terminate[0] != 0) {
+		printf("Terminate a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
+		       description,
+		       bench_timing_cycles_to_ns(time_to_terminate[1]),
+		       bench_timing_cycles_to_ns(time_to_terminate[2]),
+		       bench_timing_cycles_to_ns(time_to_terminate[0]));
+	}
+}
 
-	diff = bench_timing_cycles_get(&timestamp_start_start_c,
-				 &timestamp_start_suspend_c);
-	PRINT_STATS("Time to start a thread", diff);
+/**
+ * @brief Entry point to helper thread to gathering set #1 data
+ *
+ * This routine intentionally does nothing.
+ */
+static void bench_set2_helper(void *args)
+{
+	ARG_UNUSED(args);
 
-	diff = bench_timing_cycles_get(&timestamp_start_suspend_c,
-				 &timestamp_end_suspend_c);
-	PRINT_STATS("Time to suspend a thread", diff);
+	/* End-timestamp for starting the thread */
 
-	diff = bench_timing_cycles_get(&timestamp_start_resume_c,
-				 &timestamp_end_resume_c);
-	PRINT_STATS("Time to resume a thread", diff);
+	helper_end = bench_timing_counter_get();
 
-	timestamp_start_abort_1 = bench_timing_counter_get();
-	bench_thread_abort(0);
-	timestamp_end_abort_1 = bench_timing_counter_get();
+	/* Start suspending the thread. This causes a context switch. */
 
-	diff = bench_timing_cycles_get(&timestamp_start_abort_1,
-				 &timestamp_end_abort_1);
-	PRINT_STATS("Time to abort a thread (not running)", diff);
+	helper_start = helper_end;
+	bench_thread_suspend(THREAD_HIGH);
 
-	bench_timing_stop();
+	/*
+	 * The main thread resumed this helper thread. Get the "ending"
+	 * timestamp for resume operation. This will also be the same
+	 * as the "starting" timestamp for terminating the helper thread.
+	 */
+
+	helper_end = bench_timing_counter_get();
+	helper_start = helper_end;
+}
+
+/**
+ * @brief Test basic thread actions that result in a context switch
+ *
+ * Set #2 of the basic thread actions is responsible for ...
+ * 1. Time to start a thread of higher priority (context switch)
+ * 2. Time to suspend a thread (context switch)
+ * 3. Time to resume a thread of higher priority (context switch)
+ * 4. Time to terminate a thread (context switch)
+ */
+static void gather_set2_stats(int priority, uint32_t iteration)
+{
+	bench_time_t  start;
+	bench_time_t  end;
+
+	/* Create, but do not start the higher priority thread */
+
+	bench_thread_create(THREAD_HIGH, "thread_suspend_resume",
+				priority - 1, bench_set2_helper, NULL);
+
+	/* Start the higher priority thread. This causes a context switch. */
+
+	start = bench_timing_counter_get();
+	bench_thread_start(THREAD_HIGH);
+
+	/* Helper thread executed and then self-suspended. */
+
+	end = bench_timing_counter_get();
+
+	/* Update times for both starting and resuming the thread */
+
+	update_times(time_to_start,
+		      bench_timing_cycles_get(&start, &helper_end),
+		      iteration);
+	update_times(time_to_suspend,
+		     bench_timing_cycles_get(&helper_start, &end),
+		     iteration);
+
+	/* Resume the higher priority thread. This causes a context switch. */
+
+	start = bench_timing_counter_get();
+	bench_thread_resume(THREAD_HIGH);
+
+	/* Helper thread executed and then terminated. */
+
+	end = bench_timing_counter_get();
+
+	/* Update times for both starting and resuming the thread */
+
+	update_times(time_to_resume,
+		     bench_timing_cycles_get(&start, &helper_end),
+		     iteration);
+	update_times(time_to_terminate,
+		     bench_timing_cycles_get(&helper_start, &end),
+		     iteration);
+}
+
+/**
+ * @brief Entry point to helper thread to gathering set #1 data
+ */
+static void bench_set1_helper(void *args)
+{
+	ARG_UNUSED(args);
+
+	/* This routine is intentionally empty. */
+}
+
+/**
+ * @brief Test basic thread actions that do not result in a context switch
+ *
+ * Set #1 of the basic thread actions is responsible for ...
+ * 1. Time to create and name a thread
+ * 2. Time to start a thread of lower priority
+ * 3. Time to suspend a thread of lower priority
+ * 4. Time to resume a thread of lower priority
+ */
+
+static void gather_set1_stats(int priority, uint32_t iteration)
+{
+	bench_time_t  start;
+	bench_time_t  end;
+
+	/* Create, but do not start the lower priority thread */
+
+	start = bench_timing_counter_get();
+	bench_thread_create(THREAD_LOW, "thread_suspend_resume",
+				priority + 1, bench_set1_helper, NULL);
+	end = bench_timing_counter_get();
+	update_times(time_to_create,
+		     bench_timing_cycles_get(&start, &end),
+		     iteration);
+
+	/* Start the lower priority thread, but do not schedule it */
+
+	start = bench_timing_counter_get();
+	bench_thread_start(THREAD_LOW);
+	end = bench_timing_counter_get();
+	update_times(time_to_start,
+		     bench_timing_cycles_get(&start, &end),
+		     iteration);
+
+	/* Suspend the low priority thread (no context switch) */
+
+	start = bench_timing_counter_get();
+	bench_thread_suspend(THREAD_LOW);
+	end = bench_timing_counter_get();
+	update_times(time_to_suspend,
+		     bench_timing_cycles_get(&start, &end),
+		     iteration);
+
+	/* Resume the low priority thread (no context switch) */
+
+	start = bench_timing_counter_get();
+	bench_thread_resume(THREAD_LOW);
+	end = bench_timing_counter_get();
+	update_times(time_to_resume,
+		     bench_timing_cycles_get(&start, &end),
+		     iteration);
+#if 0
+#endif
+
+	/*
+	 * Lower and then restore the priority of the current thread to allow
+	 * the otherwise lower priority thread to finish.
+	 */
+
+	bench_thread_set_priority(priority + 2);
+	bench_thread_set_priority(priority);
 }
 
 /**
  * @brief Test setup function
  */
-void bench_interrupt_latency_init(void *arg)
+static void bench_basic_thread_ops(void *arg)
 {
+	uint32_t  i;
+
 	bench_timing_init();
 
-	bench_thread_set_priority(10); /* Lower main test thread priority */
+	/* Lower main test thread priority */
 
-	bench_suspend_resume();
+	bench_thread_set_priority(MAIN_PRIORITY);
+
+	/*
+	 * Gather stats for basic thread operations for where there are not
+	 * any thread context switches involved.
+	 */
+
+	reset_time_stats();
+
+	for (i = 1; i <= ITERATIONS; i++) {
+		gather_set1_stats(MAIN_PRIORITY, i);
+	}
+
+	report_stats("(no context switch)");
+
+	/*
+	 * Gather stats for basic thread operations for where there are
+	 * thread context switches involved.
+	 */
+
+	reset_time_stats();
+
+	for (i = 1; i <= ITERATIONS; i++) {
+		gather_set2_stats(MAIN_PRIORITY, i);
+	}
+
+	report_stats("(context switch)");
 }
 
 int main(void)
 {
-	bench_test_init(bench_interrupt_latency_init);
+	bench_test_init(bench_basic_thread_ops);
 	return 0;
 }
