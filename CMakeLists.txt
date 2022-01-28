@@ -13,6 +13,9 @@ set(AVAILABLE_RTOSES
     zephyr
     freertos)
 
+set(ITERATIONS 10000 CACHE STRING "Number of iterations for each test")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DITERATIONS=${ITERATIONS}")
+
 option(THINKER "If unrelated code should be executed between two iterations" ON)
 if (THINKER)
     set(THINKER_STEPS 100 CACHE STRING "Number of iterations of thinker algorithm")
