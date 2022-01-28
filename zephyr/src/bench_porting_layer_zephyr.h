@@ -13,6 +13,8 @@ typedef struct k_work bench_work;
 
 #define TICK_SYNCH()  k_sleep(K_TICKS(1))
 
+#define BENCH_PRINTF(FMT, ...) printk(FMT, ##__VA_ARGS__)
+
 #define PRINT(...)						\
 	{							\
 		printk("%s", ##__VA_ARGS__);					\
