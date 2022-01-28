@@ -103,4 +103,5 @@ if (NOT ${TEST} IN_LIST AVAILABLE_TESTS)
     message(FATAL_ERROR "Choose one test from:\n${pretty_print}")
 endif()
 
+target_sources(app PRIVATE src/bench_utils.c)
 target_sources(app PRIVATE src/bench_${TEST}_test.c)

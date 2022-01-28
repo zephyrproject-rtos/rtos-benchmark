@@ -27,4 +27,7 @@
 #define PRINT_OVERFLOW_ERROR()			\
 	printk(" Error: tick occurred\n")
 
+void bench_stats(uint32_t *times, int count, uint64_t *avg, uint64_t *min,
+		 uint64_t *max);
+
 #endif
