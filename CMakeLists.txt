@@ -13,6 +13,12 @@ set(AVAILABLE_RTOSES
     zephyr
     freertos)
 
+option(THINKER "If unrelated code should be executed between two iterations" ON)
+if (THINKER)
+    set(THINKER_STEPS 100 CACHE STRING "Number of iterations of thinker algorithm")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTHINKER_STEPS=${THINKER_STEPS} -DTHINKER_ENABLED")
+endif()
+
 if (NOT RTOS IN_LIST AVAILABLE_RTOSES)
     message(FATAL_ERROR "Choose either [zephyr] or [freertos]")
 endif()

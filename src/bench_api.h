@@ -244,4 +244,19 @@ int bench_mutex_unlock(int mutex_id);
  */
 void bench_irq_offload(const void *irq_offload_routine, const void *parameter);
 
+/**
+ * @brief Allocate memory from the heap.
+ *
+ * @param size Size of memory to be allocated.
+ * @return memory allocated or NULL in case of error.
+ */
+void *bench_malloc(size_t size);
+
+/**
+ * @brief Free previously allocated memory.
+ *
+ * @param ptr Pointer to memory allocated with bench_malloc()
+ */
+void bench_free(void *ptr);
+
 #endif /* BENCH_API_H */

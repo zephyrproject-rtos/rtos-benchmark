@@ -30,4 +30,10 @@
 void bench_stats(uint32_t *times, int count, uint64_t *avg, uint64_t *min,
 		 uint64_t *max);
 
+#ifdef THINKER_ENABLED
+void thinker(void);
+#else
+#define thinker() do { } while (false)
+#endif
+
 #endif

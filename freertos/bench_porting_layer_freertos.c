@@ -93,3 +93,13 @@ int bench_sem_take(int sem_id)
 	xSemaphoreTake(semaphores[sem_id], portMAX_DELAY);
 	return BENCH_SUCCESS;
 }
+
+void *bench_malloc(size_t size)
+{
+	return pvPortMalloc(size);
+}
+
+void bench_free(void *ptr)
+{
+	vPortFree(ptr);
+}
