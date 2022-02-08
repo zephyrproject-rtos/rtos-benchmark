@@ -36,14 +36,8 @@
 
 #define NUM_TIMES  8
 
-#define AVERAGE  0
-#define MINIMUM  1
-#define MAXIMUM  2
-#define TOTAL    3
+static struct bench_stats times[NUM_TIMES];
 
-static bench_time_t  times[NUM_TIMES][4];
-
-static bench_time_t  calibration;
 static bench_time_t  helper_start;
 static bench_time_t  helper_end;
 
@@ -59,46 +53,13 @@ static const char *report_strings[NUM_TIMES] = {
 };
 
 /**
- * @brief Reset a set of times
- */
-static void reset_times(bench_time_t *t)
-{
-	t[AVERAGE] = 0;                  /* Mean average time */
-	t[MINIMUM] = (bench_time_t) -1;  /* Minimum time */
-	t[MAXIMUM] = 0;                  /* Maximum time */
-	t[TOTAL] = 0;                    /* Total time */
-}
-
-/**
  * @brief Reset time statistics
  */
 static void reset_time_stats()
 {
 	for (unsigned i = 0; i < NUM_TIMES; i++) {
-		reset_times(times[i]);
+		bench_stats_reset(&times[i]);
 	}
-}
-
-/**
- * @brief Update time statistics
- */
-static void update_times(bench_time_t *t, bench_time_t value,
-			 uint32_t iteration)
-{
-	value -= calibration;
-
-	if (value < t[MINIMUM]) {      /* Update minimum value if necessary */
-		t[MINIMUM] = value;
-	}
-
-	if (value > t[MAXIMUM]) {      /* Update maximum value if necessary */
-		t[MAXIMUM] = value;
-	}
-
-	/* Update sum total of times and re-calculate mean average */
-
-	t[TOTAL] += value;
-	t[AVERAGE] = t[TOTAL] / iteration;
 }
 
 /**
@@ -110,9 +71,9 @@ static void report_stats(void)
 
 	for (i = 0; i < NUM_TIMES; i++) {
 		printf(report_strings[i],
-		       bench_timing_cycles_to_ns(times[i][MINIMUM]),
-		       bench_timing_cycles_to_ns(times[i][MAXIMUM]),
-		       bench_timing_cycles_to_ns(times[i][AVERAGE]));
+		       bench_timing_cycles_to_ns(times[i].min),
+		       bench_timing_cycles_to_ns(times[i].max),
+		       bench_timing_cycles_to_ns(times[i].avg));
 	}
 }
 
@@ -134,13 +95,13 @@ static void gather_lock_unlock_stats(uint32_t iteration)
 	bench_mutex_unlock(MUTEX_ID);
 	end   = bench_timing_counter_get();
 
-	update_times(times[TIME_TO_LOCK],
-		     bench_timing_cycles_get(&start, &mid),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_LOCK],
+			   bench_timing_cycles_get(&start, &mid),
+			   iteration);
 
-	update_times(times[TIME_TO_UNLOCK],
-		     bench_timing_cycles_get(&mid, &end),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_UNLOCK],
+			   bench_timing_cycles_get(&mid, &end),
+			   iteration);
 }
 
 /**
@@ -155,9 +116,9 @@ static void gather_recursive_lock_stats(uint32_t iteration)
 	bench_mutex_lock(MUTEX_ID);
 	end = bench_timing_counter_get();
 
-	update_times(times[TIME_TO_RECURSIVELY_LOCK],
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_RECURSIVELY_LOCK],
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 }
 
 /**
@@ -173,9 +134,9 @@ static void gather_recursive_unlock_stats(uint32_t iteration)
 	start = bench_timing_counter_get();
 	bench_mutex_unlock(MUTEX_ID);
 	end = bench_timing_counter_get();
-	update_times(times[TIME_TO_RECURSIVELY_UNLOCK],
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_RECURSIVELY_UNLOCK],
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 }
 
 /**
@@ -225,9 +186,9 @@ static void gather_unpend_stats(int priority, uint32_t iteration)
 	bench_mutex_unlock(MUTEX_ID);
 	end = bench_timing_counter_get();
 
-	update_times(times[TIME_TO_UNPEND],
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_UNPEND],
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 
 	/*
 	 * Lower the priority of the current thread to ensure the
@@ -264,9 +225,9 @@ static void gather_unpend_inheritance_stats(int priority, uint32_t iteration)
 	start = bench_timing_counter_get();
 	bench_mutex_unlock(MUTEX_ID);
 
-	update_times(times[TIME_TO_UNPEND_PRI_INH],
-		     bench_timing_cycles_get(&start, &helper_end),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_UNPEND_PRI_INH],
+			   bench_timing_cycles_get(&start, &helper_end),
+			   iteration);
 }
 
 /**
@@ -350,9 +311,9 @@ static void gather_pend_stats(int priority, uint32_t iteration)
 
 	/* Step 6. */
 
-	update_times(times[TIME_TO_PEND],
-		     bench_timing_cycles_get(&helper_start, &helper_end),
-		     iteration);
+	bench_stats_update(&times[TIME_TO_PEND],
+			   bench_timing_cycles_get(&helper_start, &helper_end),
+			   iteration);
 
 	bench_mutex_unlock(MUTEX_ID);
 
@@ -401,26 +362,9 @@ static void gather_pend_inheritance_stats(int priority, uint32_t iteration)
 
 	/* Step 8 */
 
-	update_times(times[TIME_TO_PEND_PRI_INH],
-		     bench_timing_cycles_get(&helper_start, &end),
-		     iteration);
-}
-
-/**
- * @brief Calculate average time spent issuing bench_timing_counter_get()
- */
-static void bench_calibrate(void)
-{
-	bench_time_t  start = bench_timing_counter_get();
-	bench_time_t  end;
-	uint32_t  i;
-
-	for (i = 0; i < 1000000; i++) {
-		bench_timing_counter_get();
-	}
-	end = bench_timing_counter_get();
-
-	calibration = bench_timing_cycles_get(&start, &end) / 1000000;
+	bench_stats_update(&times[TIME_TO_PEND_PRI_INH],
+			   bench_timing_cycles_get(&helper_start, &end),
+			   iteration);
 }
 
 /**
@@ -436,8 +380,6 @@ static void bench_mutex_lock_unlock_test(void *arg)
 	bench_thread_set_priority(MAIN_PRIORITY);
 
 	bench_timing_init();
-
-	bench_calibrate();
 
 	reset_time_stats();
 

@@ -40,55 +40,22 @@ static bench_time_t helper_end;          /* helper thread end timestamp */
  * [3]: total of all iterations
  */
 
-static bench_time_t time_to_create[4];    /* time to create a thread */
-static bench_time_t time_to_start[4];     /* time to start a thread */
-static bench_time_t time_to_suspend[4];   /* time to suspend a thread */
-static bench_time_t time_to_resume[4];    /* time to resume a thread */
-static bench_time_t time_to_terminate[4]; /* time to terminate a thread */
-
-/**
- * @brief  Reset a set of times
- */
-static void reset_times(bench_time_t *t)
-{
-	t[0] = 0;                  /* Mean average time */
-	t[1] = (bench_time_t) -1;  /* Minimum time */
-	t[2] = 0;                  /* Maximum time */
-	t[3] = 0;                  /* Total time */
-}
+static struct bench_stats time_to_create;    /* time to create a thread */
+static struct bench_stats time_to_start;     /* time to start a thread */
+static struct bench_stats time_to_suspend;   /* time to suspend a thread */
+static struct bench_stats time_to_resume;    /* time to resume a thread */
+static struct bench_stats time_to_terminate; /* time to terminate a thread */
 
 /**
  * @brief Reset time statistics
  */
 static void reset_time_stats(void)
 {
-	reset_times(time_to_create);
-	reset_times(time_to_start);
-	reset_times(time_to_suspend);
-	reset_times(time_to_resume);
-	reset_times(time_to_terminate);
-}
-
-/**
- * @brief Update time statistics
- *
- * Updates the mean, minimum, maximum and totals for the given time set.
- */
-static void update_times(bench_time_t *t, bench_time_t value,
-			 uint32_t iteration)
-{
-	if (value < t[1]) {    /* Update minimum value if necessary */
-		t[1] = value;
-	}
-
-	if (value > t[2]) {    /* Update maximum value if necessary */
-		t[2] = value;
-	}
-
-	/* Update sum total of times and re-calculate mean average */
-
-	t[3] += value;
-	t[0] = t[3] / iteration;
+	bench_stats_reset(&time_to_create);
+	bench_stats_reset(&time_to_start);
+	bench_stats_reset(&time_to_suspend);
+	bench_stats_reset(&time_to_resume);
+	bench_stats_reset(&time_to_terminate);
 }
 
 /**
@@ -104,32 +71,32 @@ static void update_times(bench_time_t *t, bench_time_t value,
  */
 static void report_stats(const char *description)
 {
-	if (time_to_start[0] != 0) {
+	if (time_to_start.avg != 0) {
 		printf("Start a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
 		       description,
-		       bench_timing_cycles_to_ns(time_to_start[1]),
-		       bench_timing_cycles_to_ns(time_to_start[2]),
-		       bench_timing_cycles_to_ns(time_to_start[0]));
+		       bench_timing_cycles_to_ns(time_to_start.min),
+		       bench_timing_cycles_to_ns(time_to_start.max),
+		       bench_timing_cycles_to_ns(time_to_start.avg));
 	}
 
 	printf("Suspend a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
 	       description,
-	       bench_timing_cycles_to_ns(time_to_suspend[1]),
-	       bench_timing_cycles_to_ns(time_to_suspend[2]),
-	       bench_timing_cycles_to_ns(time_to_suspend[0]));
+	       bench_timing_cycles_to_ns(time_to_suspend.min),
+	       bench_timing_cycles_to_ns(time_to_suspend.max),
+	       bench_timing_cycles_to_ns(time_to_suspend.avg));
 
 	printf("Resume a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
 	       description,
-	       bench_timing_cycles_to_ns(time_to_resume[1]),
-	       bench_timing_cycles_to_ns(time_to_resume[2]),
-	       bench_timing_cycles_to_ns(time_to_resume[0]));
+	       bench_timing_cycles_to_ns(time_to_resume.min),
+	       bench_timing_cycles_to_ns(time_to_resume.max),
+	       bench_timing_cycles_to_ns(time_to_resume.avg));
 
-	if (time_to_terminate[0] != 0) {
+	if (time_to_terminate.avg != 0) {
 		printf("Terminate a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
 		       description,
-		       bench_timing_cycles_to_ns(time_to_terminate[1]),
-		       bench_timing_cycles_to_ns(time_to_terminate[2]),
-		       bench_timing_cycles_to_ns(time_to_terminate[0]));
+		       bench_timing_cycles_to_ns(time_to_terminate.min),
+		       bench_timing_cycles_to_ns(time_to_terminate.max),
+		       bench_timing_cycles_to_ns(time_to_terminate.avg));
 	}
 }
 
@@ -191,12 +158,12 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 
 	/* Update times for both starting and resuming the thread */
 
-	update_times(time_to_start,
-		      bench_timing_cycles_get(&start, &helper_end),
-		      iteration);
-	update_times(time_to_suspend,
-		     bench_timing_cycles_get(&helper_start, &end),
-		     iteration);
+	bench_stats_update(&time_to_start,
+			   bench_timing_cycles_get(&start, &helper_end),
+			   iteration);
+	bench_stats_update(&time_to_suspend,
+			   bench_timing_cycles_get(&helper_start, &end),
+			   iteration);
 
 	/* Resume the higher priority thread. This causes a context switch. */
 
@@ -209,12 +176,12 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 
 	/* Update times for both starting and resuming the thread */
 
-	update_times(time_to_resume,
-		     bench_timing_cycles_get(&start, &helper_end),
-		     iteration);
-	update_times(time_to_terminate,
-		     bench_timing_cycles_get(&helper_start, &end),
-		     iteration);
+	bench_stats_update(&time_to_resume,
+			   bench_timing_cycles_get(&start, &helper_end),
+			   iteration);
+	bench_stats_update(&time_to_terminate,
+			   bench_timing_cycles_get(&helper_start, &end),
+			   iteration);
 }
 
 /**
@@ -248,36 +215,36 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	bench_thread_create(THREAD_LOW, "thread_suspend_resume",
 				priority + 1, bench_set1_helper, NULL);
 	end = bench_timing_counter_get();
-	update_times(time_to_create,
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&time_to_create,
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 
 	/* Start the lower priority thread, but do not schedule it */
 
 	start = bench_timing_counter_get();
 	bench_thread_start(THREAD_LOW);
 	end = bench_timing_counter_get();
-	update_times(time_to_start,
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&time_to_start,
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 
 	/* Suspend the low priority thread (no context switch) */
 
 	start = bench_timing_counter_get();
 	bench_thread_suspend(THREAD_LOW);
 	end = bench_timing_counter_get();
-	update_times(time_to_suspend,
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&time_to_suspend,
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 
 	/* Resume the low priority thread (no context switch) */
 
 	start = bench_timing_counter_get();
 	bench_thread_resume(THREAD_LOW);
 	end = bench_timing_counter_get();
-	update_times(time_to_resume,
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&time_to_resume,
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 #if 0
 #endif
 

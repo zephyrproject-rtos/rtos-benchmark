@@ -23,59 +23,15 @@
 
 
 static bench_time_t  helper_start;
-static bench_time_t  calibration;
 
-/*
- * Each set of times is comprised of the following :
- * [0]: mean average value
- * [1]: minimum value
- * [2]: maximum value
- * [3]: total of all iterations
- */
-
-static bench_time_t time_to_yield[4];
-
-/**
- * @brief Reset a set of times
- */
-static void reset_times(bench_time_t *t)
-{
-	t[0] = 0;                    /* Mean average time */
-	t[1] = (bench_time_t) -1;    /* Minimum time */
-	t[2] = 0;                    /* Maximum time */
-	t[3] = 0;                    /* Total time */
-}
+static struct bench_stats time_to_yield;
 
 /**
  * @brief Reset time statistics
  */
 static void reset_time_stats(void)
 {
-	reset_times(time_to_yield);
-}
-
-/**
- * @brief Update time statistics
- *
- * Update the mean, minimum, maximum and totals for the given time set.
- */
-static void update_times(bench_time_t *t, bench_time_t value,
-			 uint32_t iteration)
-{
-	value -= calibration;
-
-	if (value < t[1]) {     /* Update minimum value if necessary */
-		t[1] = value;
-	}
-
-	if (value > t[2]) {     /* Update maximum value if necessary */
-		t[2] = value;
-	}
-
-	/* Update sum total of times and re-calculate mean average */
-
-	t[3] += value;
-	t[0] = t[3] / iteration;
+	bench_stats_reset(&time_to_yield);
 }
 
 /**
@@ -85,26 +41,9 @@ static void report_stats(const char *description)
 {
         printf("Yield %s: min %llu ns, max %llu ns, avg %llu ns\n",
                description,
-               bench_timing_cycles_to_ns(time_to_yield[1]),
-               bench_timing_cycles_to_ns(time_to_yield[2]),
-               bench_timing_cycles_to_ns(time_to_yield[0]));
-}
-
-/**
- * @brief Calculate average time spent issuing bench_timing_counter_get()
- */
-static void bench_calibrate(void)
-{
-	bench_time_t  start = bench_timing_counter_get();
-	bench_time_t  end;
-	uint32_t  i;
-
-	for (i = 0; i < 1000000; i++) {
-		bench_timing_counter_get();
-	}
-	end = bench_timing_counter_get();
-
-	calibration = bench_timing_cycles_get(&start, &end) / 1000000;
+               bench_timing_cycles_to_ns(time_to_yield.min),
+               bench_timing_cycles_to_ns(time_to_yield.max),
+               bench_timing_cycles_to_ns(time_to_yield.avg));
 }
 
 /**
@@ -156,9 +95,9 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	bench_yield();
 	end   = bench_timing_counter_get();
 
-	update_times(time_to_yield,
-		     bench_timing_cycles_get(&helper_start, &end),
-		     iteration);
+	bench_stats_update(&time_to_yield,
+			   bench_timing_cycles_get(&helper_start, &end),
+			   iteration);
 
 	/*
 	 * Lower the priority of the current thread to ensure that the
@@ -201,9 +140,9 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	bench_yield();
 	end   = bench_timing_counter_get();
 
-	update_times(time_to_yield,
-		     bench_timing_cycles_get(&start, &end),
-		     iteration);
+	bench_stats_update(&time_to_yield,
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
 
 	/*
 	 * Lower and then restore the priority of the current thread to allow
@@ -222,8 +161,6 @@ static void bench_thread_yield(void *arg)
 	uint32_t  i;
 
 	bench_timing_init();
-
-	bench_calibrate();
 
 	/* Lower main test thread priority */
 
