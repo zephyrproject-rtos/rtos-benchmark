@@ -27,8 +27,18 @@
 #define PRINT_OVERFLOW_ERROR()			\
 	printk(" Error: tick occurred\n")
 
-void bench_stats(uint32_t *times, int count, uint64_t *avg, uint64_t *min,
-		 uint64_t *max);
+struct bench_stats {
+	bench_time_t avg;
+	bench_time_t min;
+	bench_time_t max;
+	bench_time_t total;
+	bench_time_t calibration;
+};
+
+void bench_stats_reset(struct bench_stats *stats);
+
+void bench_stats_update(struct bench_stats *stats, bench_time_t value,
+			uint32_t iteration);
 
 #ifdef THINKER_ENABLED
 void thinker(void);

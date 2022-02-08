@@ -10,8 +10,8 @@
 #include "bench_api.h"
 #include "bench_utils.h"
 
-uint32_t take_times[ITERATIONS];
-uint32_t give_times[ITERATIONS];
+struct bench_stats take_times;
+struct bench_stats give_times;
 
 /**
  * @brief Test main function
@@ -22,52 +22,50 @@ void bench_sem_signal_release()
 {
 	int i;
 	unsigned int diff;
-	uint64_t avg, min, max;
 	bench_time_t timestamp_start;
 	bench_time_t timestamp_end;
 
 	/* Measure average semaphore signal time */
 	bench_timing_start();
+	bench_stats_reset(&give_times);
 
-	for (i = 0; i < ITERATIONS; i++) {
+	for (i = 1; i <= ITERATIONS; i++) {
 		timestamp_start = bench_timing_counter_get();
 		bench_sem_give(0);
 		timestamp_end = bench_timing_counter_get();
 		diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
-		give_times[i] = diff;
+		bench_stats_update(&give_times, diff, i);
 		thinker();
 	}
 
 	bench_timing_stop();
 
-	bench_stats(give_times, ITERATIONS, &avg, &min, &max);
-	BENCH_PRINTF("Semaphore give cycles (no context switch) [average, min, max],"
-		     " %llu, %llu, %llu, Time, %llu %llu %llu\n", avg, min, max,
-		     bench_timing_cycles_to_ns(avg),
-		     bench_timing_cycles_to_ns(min),
-		     bench_timing_cycles_to_ns(max));
+	BENCH_PRINTF("Semaphore give time (no context switch) [avg min max], "
+		     "%llu, %llu, %llu\n",
+		     bench_timing_cycles_to_ns(give_times.avg),
+		     bench_timing_cycles_to_ns(give_times.min),
+		     bench_timing_cycles_to_ns(give_times.max));
 
 	/* Measure average semaphore test time */
 	bench_timing_start();
+	bench_stats_reset(&take_times);
 
-
-	for (i = 0; i < ITERATIONS; i++) {
+	for (i = 1; i <= ITERATIONS; i++) {
 		timestamp_start = bench_timing_counter_get();
 		bench_sem_take(0);
 		timestamp_end = bench_timing_counter_get();
 		diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
-		take_times[i] = diff;
+		bench_stats_update(&take_times, diff, i);
 		thinker();
 	}
 
 	bench_timing_stop();
 
-	bench_stats(take_times, ITERATIONS, &avg, &min, &max);
-	BENCH_PRINTF("Semaphore take cycles (no context switch) [average, min, max],"
-		     " %llu, %llu, %llu, Time, %llu %llu %llu\n", avg, min, max,
-		     bench_timing_cycles_to_ns(avg),
-		     bench_timing_cycles_to_ns(min),
-		     bench_timing_cycles_to_ns(max));
+	BENCH_PRINTF("Semaphore take time (no context switch) [avg min max], "
+		     "%llu, %llu, %llu\n",
+		     bench_timing_cycles_to_ns(take_times.avg),
+		     bench_timing_cycles_to_ns(take_times.min),
+		     bench_timing_cycles_to_ns(take_times.max));
 }
 
 /**

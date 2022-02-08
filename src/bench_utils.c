@@ -2,28 +2,44 @@
 
 #include "bench_api.h"
 
+#include <assert.h>
 #include <stdint.h>
 
-void bench_stats(uint32_t *times, int count, uint64_t *avg, uint64_t *min,
-		 uint64_t *max)
+void bench_stats_reset(struct bench_stats *stats)
 {
-	int save_count = count;
-	uint64_t sum = 0;
+	bench_time_t start, end;
+	uint32_t i;
 
-	*min = UINT64_MAX;
-	*max = 0;
+	stats->avg = 0;
+	stats->min = (bench_time_t) -1;
+	stats->max = 0;
+	stats->total = 0;
 
-	while (--count >= 0) {
-		sum += times[count];
+	start = bench_timing_counter_get();
+	for (i = 0; i < CALIBRATION_LOOPS; i++)
+		bench_timing_counter_get();
+	end = bench_timing_counter_get();
 
-		if (times[count] > *max)
-			*max = times[count];
-		if (times[count] < *min)
-			*min = times[count];
-	}
-
-	*avg = sum / save_count;
+	stats->calibration = bench_timing_cycles_get(&start, &end) / CALIBRATION_LOOPS;
 }
+
+void bench_stats_update(struct bench_stats *stats, bench_time_t value,
+			uint32_t iteration)
+{
+	assert(iteration != 0);
+
+	value -= stats->calibration;
+
+	if (value < stats->min)
+		stats->min = value;
+
+	if (value > stats->max)
+		stats->max = value;
+
+	stats->total += value;
+	stats->avg = stats->total / iteration;
+}
+
 
 #ifdef THINKER_ENABLED
 struct list {
