@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
 set(AVAILABLE_TESTS
-    cooperative_context_switch
     interrupt_latency
     mutex_lock_unlock
     sem_context_switch
