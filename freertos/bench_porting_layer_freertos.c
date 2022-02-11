@@ -103,3 +103,67 @@ void bench_free(void *ptr)
 {
 	vPortFree(ptr);
 }
+
+void bench_thread_start(int thread_id)
+{
+	ARG_UNUSED(thread_id);
+}
+
+void bench_thread_set_priority(int priority)
+{
+	ARG_UNUSED(priority);
+}
+
+int bench_thread_create(int thread_id, const char *thread_name, int priority,
+	void (*entry_function)(void *), void *args)
+{
+	ARG_UNUSED(thread_id);
+	ARG_UNUSED(thread_name);
+	ARG_UNUSED(priority);
+	ARG_UNUSED(entry_function);
+	ARG_UNUSED(args);
+}
+
+void bench_thread_resume(int thread_id)
+{
+	ARG_UNUSED(thread_id);
+}
+
+void bench_thread_suspend(int thread_id)
+{
+	ARG_UNUSED(thread_id);
+}
+
+void bench_thread_abort(int thread_id)
+{
+	ARG_UNUSED(thread_id);
+}
+
+void bench_yield(void)
+{
+}
+
+int bench_mutex_create(int mutex_id)
+{
+	ARG_UNUSED(mutex_id);
+}
+
+int bench_mutex_lock(int mutex_id)
+{
+	ARG_UNUSED(mutex_id);
+}
+
+int bench_mutex_unlock(int mutex_id)
+{
+	ARG_UNUSED(mutex_id);
+}
+
+void bench_irq_offload(const void *irq_offload_routine, const void *parameter)
+{
+	ARG_UNUSED(irq_offload_routine);
+	ARG_UNUSED(parameter);
+}
+
+void bench_sync_ticks(void)
+{
+}

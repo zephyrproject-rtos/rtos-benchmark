@@ -53,4 +53,6 @@ typedef void * bench_work;
   KIN1_DWT_CYCCNT
   /*!< Read cycle counter register */
 
+#define ARG_UNUSED(x) (void)(x)
+
 #endif /* PORTING_LAYER_FREERTOS_H_ */
