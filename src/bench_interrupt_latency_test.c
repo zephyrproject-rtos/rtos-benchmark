@@ -41,7 +41,7 @@ static void bench_make_interrupt(void)
 {
 	flag_var = 0;
 
-	irq_offload(bench_latency_test_isr, NULL);
+	bench_irq_offload(bench_latency_test_isr, NULL);
 
 	if (flag_var != 1) {
 		printf("Flag variable has not changed. Interrupt latency test FAILED\n");
