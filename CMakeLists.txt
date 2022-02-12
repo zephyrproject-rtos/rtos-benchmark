@@ -93,7 +93,7 @@ else()
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --specs=nano.specs")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --specs=nosys.specs")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_CURRENT_SOURCE_DIR}/freertos/armgcc/MK64FN1M0xxx12_flash.ld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_CURRENT_SOURCE_DIR}/freertos/MK64FN1M0xxx12_flash.ld")
 
     target_link_libraries(app PRIVATE -Wl,--start-group)
     target_link_libraries(app PRIVATE c)

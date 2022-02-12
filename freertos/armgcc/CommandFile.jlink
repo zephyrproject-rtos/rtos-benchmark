@@ -1,5 +1,0 @@
-connect
-r
-h
-loadbin debug/freertos.bin 0
-g

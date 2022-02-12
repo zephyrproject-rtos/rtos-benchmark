@@ -1,3 +1,0 @@
-export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
-export GNUARMEMB_TOOLCHAIN_PATH=$HOME/gnu_arm_embedded
-export ARMGCC_DIR=$HOME/gnu_arm_embedded
