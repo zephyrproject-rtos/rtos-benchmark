@@ -1,42 +1,53 @@
 # README
 
-The following instructions were written on Ubuntu 18.04 with Zephyr 2.6 and Zephyr SDK 12.3 and may require modification for your development environment.
-
-## Setup
-
-To use the GNU ARM compiler for the `frdm_k64f` board, install [GNU ARM Embedded toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm) and set appropriate environment variables following Zephyr Project directions on [3rd Party Toolchains](https://docs.zephyrproject.org/latest/getting_started/toolchain_3rd_party_x_compilers.html#third-party-x-compilers). It's highly recommended you install it in your home directory (`~`).
+The benchmark project contains a set of tests aimed to measure the
+performance of certain OS operations. It currently supports Zephyr
+and FreeRTOS (partial). Tests are expected to be run on a
+FRDM-K64F board.
 
 ## Zephyr
 
-```
-cd zephyr
-```
+Note that Zephyr must be available on the system, so that a freestanding
+application can be built. `ZEPHYR_BASE` environment variable must be set
+in order to make flash options available.
 
-To change the test being built and run, comment in the appropriate line in `CMakeLists.txt`. For example, to run the basic `Hello World` benchmark, comment in the below line:
-
-```
-...
-# target_sources(app PRIVATE ${SRC_DIR}/bench_sem_signal_release_test.c)
-# target_sources(app PRIVATE ${SRC_DIR}/bench_thread_switch_yield_test.c)
-# target_sources(app PRIVATE ${SRC_DIR}/bench_thread_test.c)
-target_sources(app PRIVATE ${SRC_DIR}/bench_hello_world.c)
-```
-
-### Zephyr on QEMU
-
-QEMU is useful for building and debugging the benchmark application quickly. You'll need to reset `ZEPHYR_TOOLCHAIN_VARIANT` back to `zephyr` if you were using `gnuarmemb` previously.
-
-To build and run:
+To build the benchmark for Zephyr, one can use:
 
 ```
-west build -b qemu_x86 -t run
+cmake -GNinja -DRTOS=zephyr -DTEST=<test> -DBOARD=<board> -S . -B build
 ```
 
-You can see the output directly in the terminal.
+That will generate the build files, for `ninja`, in the `build` directory.
+
+* `<test>` is which test to run (check `AVAILABLE_TESTS` variables in
+`CMakeLists.txt` to see available tests).
+
+* `<board>` is the target board.
+
+Then, to build one can use:
+
+```
+ninja -C build
+```
+
+And to flash (environment variable `ZEPHYR_BASE` must be set, so that
+Zephyr `west` tool can be found):
+
+```
+ninja -C build flash
+```
+
+Note that one can also use `qemu` targets for Zephyr. For instance:
+
+```
+cmake -GNinja -DRTOS=zephyr -DTEST=<test> -DBOARD=qemu_x86 -S . -B build
+ninja run
+```
 
 ### Zephyr on FRDM K64F
 
-Connect the `frdm_k64f` to your host via USB. In another terminal, open Minicom to see the output:
+Connect the `frdm_k64f` to your host via USB. In another terminal, open
+a serial terminal (such as screen, minicom, etc) to see the output:
 
 ```
 minicom -D /dev/ttyACM0
@@ -45,85 +56,75 @@ minicom -D /dev/ttyACM0
 To build and flash:
 
 ```
-west build -b frdm_k64f -t flash
+ninja -C build flash
 ```
 
 ## FreeRTOS on FRDM_K64F
 
-Build and download version 2.8.2 of the FRDM-K64F SDK from the [NXP MCUXpresso SDK Builder](https://mcuxpresso.nxp.com/en/welcome). Select Linux as your host OS and GCC ARM Embedded as your toolchain. Be sure to also check the FreeRTOS checkbox to build FreeRTOS awareness and examples into the SDK. 
+
+### Setup
+
+Install the GNU ARM compiler for the `frdm_k64f` board,
+[GNU ARM Embedded toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
+and set `ARMGCC_DIR` to the installation directory.
+
+
+Build and download the FRDM-K64F SDK from the [NXP MCUXpresso SDK Builder](https://mcuxpresso.nxp.com/en/welcome).
+Select Linux as your host OS and GCC ARM Embedded as your toolchain.
+Be sure to also check the FreeRTOS checkbox to build FreeRTOS
+awareness and examples into the SDK.
 
 ```
-mkdir freertos/SDK_2.8.2_FRDM-K64F
-unzip ~/Downloads/SDK_2_8_0_FRDM-K64F.zip -d freertos/SDK_2.8.2_FRDM-K64F
+mkdir freertos/SDK_<version>_FRDM-K64F
+unzip ~/Downloads/SDK_<version>_FRDM-K64F.zip -d freertos/SDK_<version>_FRDM-K64F
 ```
 
-Download the [Segger J-Link firmware](https://www.segger.com/downloads/jlink/OpenSDA_FRDM-K64F) and flash it onto the `frdm_k64f`. You can do this by holding the reset button while plugging in the USB cable to enter bootloader mode and dragging and dropping the firmware onto the `BOOTLOADER` drive.
-
-Download and install the [Segger J-Link software and documentation pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) (recommended into `/opt/`).
-
-Navigate into the `freertos` directory.
-
-```
-cd freertos/
-```
+Install [pyOCD](https://github.com/pyocd/pyOCD) - tool used to flash FRDM_K64F.
 
 ### Build
 
-To change the sample being built, edit `freertos/armgcc/CMakeLists.txt:372`:
+To build the benchmark for FreeRTOS, one can use:
 
 ```
-...
-add_executable(${PROJECT_NAME}.elf 
-
-"${BenchDirPath}/bench_sem_signal_release_test.c" # Change me
-"${ProjDirPath}/../bench_porting_layer_freertos.c"
-...
+cmake -GNinja -DRTOS=freertos -DMCUX_SDK_PATH=SDK_<version>_FRDM-K64F -DTEST=<test> -DBOARD=frdm_k64f -S . -B build
 ```
 
-Set `ARMGCC_DIR` to make CMake build with the toolchain:
+That will generate the build files, for `ninja`, in the `build` directory.
+Note that only `FRDM K64F` is supported for FreeRTOS.
+
+* `<test>` is which test to run (check `AVAILABLE_TESTS` variables in
+`CMakeLists.txt` to see available tests).
+
+Then, to build one can use:
 
 ```
-export ARMGCC_DIR=$HOME/gnu_arm_embedded
+ninja -C build
 ```
 
-Build and flash (check paths in `shortcut.sh` to be sure they'll work for your JLink and GNU ARM toolchain install):
+And to flash (note that `pyOCD` must be installed):
 
 ```
-./shortcut.sh
+ninja -C build flash
 ```
-
-You can also build and flash yourself:
-
-```
-# Build
-./build_debug.sh
-# Copy to binary format
-~/gnu_arm_embedded/bin/arm-none-eabi-objcopy -S -O binary ./debug/freertos.elf ./${TYPE}/freertos.bin
-# Flash using commands in CommandFile.jlink (for JLink CLI)
-/opt/SEGGER/JLink/JLinkExe -device MK64FN1M0XXX12 -if SWD -NoGui 1 -Speed auto -CommandFile CommandFile.jlink
-```
-
-To clean up the generated files, you can use the ./clean.sh command. 
 
 ### Debug
 
-Once you've built the application and copied to .bin, start the JLink GDB Server:
+To build the a debug version of the benchmark for FreeRTOS, one can add
+`-DCMAKE_BUILD_TYPE=debug` to the build options:
 
 ```
-/opt/SEGGER/JLink/JLinkGDBServer ./debug/freertos.elf -device MK64FN1M0XXX12
+cmake -GNinja -DCMAKE_BUILD_TYPE=debug -DRTOS=freertos -DMCUX_SDK_PATH=SDK_<version>_FRDM-K64F -DTEST=<test> -DBOARD=frdm_k64f -S . -B build
+```
+
+Then run the `debugserver` target:
+
+```
+ninja -C build debugserver
 ```
 
 In another terminal, start GDB:
 
 ```
-~/gnu_arm_embedded/bin/arm-none-eabi-gdb ./debug/freertos.elf
+$ARMGCC_DIR/bin/arm-none-eabi-gdb build/freertos.elf
+(gdb) target remote :3333
 ```
-
-# TODO
-- Change from commenting CMakeLists.txt to shell script (?)
-- Adjust tests for any changes in benchmarking suite since Fall 2020
-- Recheck Kconfig options since Fall 2020
-- Update FRDM-K64F SDK to 2.9 (release 1/15/21)
-- Clean up CMakeLists.txt file copied and modified from examples in SDK to reduce repetition and length
-- Fix PRINTF for FreeRTOS
-- Figure out why debugging is broken on FRDM???
