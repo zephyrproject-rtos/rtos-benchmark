@@ -100,6 +100,12 @@ else()
     target_link_libraries(app PRIVATE gcc)
     target_link_libraries(app PRIVATE nosys)
     target_link_libraries(app PRIVATE -Wl,--end-group)
+
+    set(EXEC_NAME freertos.elf)
+    set_target_properties(app PROPERTIES OUTPUT_NAME ${EXEC_NAME})
+
+    add_custom_target(flash USES_TERMINAL COMMAND pyocd load --target k64f ${EXEC_NAME})
+    add_custom_target(debugserver USES_TERMINAL COMMAND pyocd gdbserver --target k64f)
 endif()
 
 project(bench)
