@@ -4,7 +4,7 @@
 #include "bench_utils.h"
 
 extern void bench_basic_thread_ops(void *arg);
-extern void bench_interrupt_latency_init(void *arg);
+extern void bench_interrupt_latency_test(void *arg);
 extern void bench_mutex_lock_unlock_test(void *arg);
 extern void bench_sem_context_switch_init(void *arg);
 extern void bench_sem_signal_release_init(void *arg);
@@ -15,11 +15,11 @@ void bench_all(void *arg)
 	BENCH_PRINTF("\n *** Starting! ***\n\n");
 
 	bench_basic_thread_ops(arg);
-	bench_interrupt_latency_init(arg);
 	bench_mutex_lock_unlock_test(arg);
 	bench_sem_context_switch_init(arg);
 	bench_sem_signal_release_init(arg);
 	bench_thread_yield(arg);
+	bench_interrupt_latency_test(arg);
 
 	BENCH_PRINTF("\n *** Done! ***\n");
 }

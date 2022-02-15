@@ -13,6 +13,8 @@
 #include "../freertos/bench_porting_layer_freertos.h"
 #endif /* FREERTOS */
 
+typedef void (*bench_isr_handler_t)(void *arg);
+
 /**
  * @brief Call test initialization function
  *
@@ -258,5 +260,77 @@ void *bench_malloc(size_t size);
  * @param ptr Pointer to memory allocated with bench_malloc()
  */
 void bench_free(void *ptr);
+
+/**
+ * @brief Get a pointer to the system tick handler
+ *
+ * This routine returns a pointer to the currently installed system tick
+ * handler.
+ */
+bench_isr_handler_t bench_timer_isr_get(void);
+
+/**
+ * @brief Chain in a new system tick handler with the old
+ *
+ * This routine sets a new system timer handler.
+ *
+ * @param handler Pointer to the new system tick handler
+ */
+void bench_timer_isr_set(bench_isr_handler_t handler);
+
+/**
+ * @brief Restore the old timer handler and the default tick rate
+ *
+ * This routine restores both the old timer handler and its default tick rate.
+ *
+ * @param handler Old timer handler
+ */
+void bench_timer_isr_restore(bench_isr_handler_t handler);
+
+/**
+ * @brief Set the number of microseconds at which to trigger the timer ISR
+ *
+ * This routine sets the timer interrupt handler to fire after the specified
+ * number of microseconds.
+ *
+ * @param usec Number of microseconds before timer ISR is triggered
+ *
+ * @return Cycle count at which timer ISR will be triggered
+ */
+uint64_t bench_timer_isr_expiry_set(uint32_t usec);
+
+/**
+ * @brief Calculate the number of cycles between the trigger and sampling points
+ *
+ * Given the timer cycle counts for when the timer was triggered and when
+ * the timer ISR handler began to execute, this routine calculates the
+ * elapsed number of timer cycles. The implementation of this routine is
+ * driver specific.
+ *
+ * @return Number of elapsed timer cycles
+ */
+uint64_t bench_timer_cycles_diff(uint64_t trigger, uint64_t sample);
+
+/**
+ * @brief Get the raw value of the timer cycles
+ *
+ * @return Raw value of the timer's cycles register
+ */
+bench_time_t bench_timer_cycles_get(void);
+
+/**
+ * @brief Get the number of system timer cycles per second
+ *
+ * @return Rate at which the timer cycles count
+ */
+uint32_t bench_timer_cycles_per_second(void);
+
+/**
+ * @brief Get the number of timer cycles per tick
+ *
+ * @return Number of timer cycles per tick
+ */
+uint32_t bench_timer_cycles_per_tick(void);
+
 
 #endif /* BENCH_API_H */
