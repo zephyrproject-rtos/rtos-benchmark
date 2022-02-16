@@ -1,6 +1,7 @@
 .vscode/
 *.code-workspace
 .gdbinit
+.*.swp
 
 # Zephyr
 trace/
