@@ -41,8 +41,6 @@ void bench_sem_context_switch_low_prio_give(int iteration)
 {
 	uint32_t diff;
 
-	bench_timing_start();
-
 	bench_thread_create(1, "high_prio_take", 3, bench_sem_context_switch_high_prio_take, NULL);
 	bench_thread_start(1);
 
@@ -54,8 +52,6 @@ void bench_sem_context_switch_low_prio_give(int iteration)
 	bench_sem_give(0);
 	diff = bench_timing_cycles_get(&timestamp_start_sema_g_c, &timestamp_end_sema_g_c);
 	bench_stats_update(&give_times, diff, iteration);
-
-	bench_timing_stop();
 }
 
 /**
@@ -66,6 +62,7 @@ void bench_sem_context_switch_init(void *arg)
 	int i;
 
 	bench_timing_init();
+	bench_timing_start();
 
 	bench_stats_reset(&take_times);
 	bench_stats_reset(&give_times);
@@ -89,6 +86,8 @@ void bench_sem_context_switch_init(void *arg)
 		     bench_timing_cycles_to_ns(give_times.avg),
 		     bench_timing_cycles_to_ns(give_times.min),
 		     bench_timing_cycles_to_ns(give_times.max));
+
+	bench_timing_stop();
 }
 
 int main(void)

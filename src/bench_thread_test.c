@@ -277,6 +277,8 @@ static void bench_basic_thread_ops(void *arg)
 
 	reset_time_stats();
 
+	bench_timing_start();
+
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
 	}
@@ -293,6 +295,8 @@ static void bench_basic_thread_ops(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
 	}
+
+	bench_timing_stop();
 
 	report_stats("(context switch)");
 }

@@ -111,7 +111,7 @@ static void gather_recursive_lock_stats(uint32_t iteration)
 {
 	bench_time_t  start;
 	bench_time_t  end;
-	
+
 	start = bench_timing_counter_get();
 	bench_mutex_lock(MUTEX_ID);
 	end = bench_timing_counter_get();
@@ -380,6 +380,7 @@ static void bench_mutex_lock_unlock_test(void *arg)
 	bench_thread_set_priority(MAIN_PRIORITY);
 
 	bench_timing_init();
+	bench_timing_start();
 
 	reset_time_stats();
 
@@ -416,6 +417,7 @@ static void bench_mutex_lock_unlock_test(void *arg)
 	}
 
 	report_stats();
+	bench_timing_stop();
 }
 
 int main(void)
