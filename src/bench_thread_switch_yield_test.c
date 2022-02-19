@@ -156,7 +156,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 /**
  * @brief Test for the yield benchmarking
  */
-static void bench_thread_yield(void *arg)
+void bench_thread_yield(void *arg)
 {
 	uint32_t  i;
 

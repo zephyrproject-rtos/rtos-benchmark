@@ -370,7 +370,7 @@ static void gather_pend_inheritance_stats(int priority, uint32_t iteration)
 /**
  * @brief Test setup function
  */
-static void bench_mutex_lock_unlock_test(void *arg)
+void bench_mutex_lock_unlock_test(void *arg)
 {
 	uint32_t  i;
 

@@ -10,8 +10,8 @@
 #include "bench_api.h"
 #include "bench_utils.h"
 
-struct bench_stats take_times;
-struct bench_stats give_times;
+static struct bench_stats take_times;
+static struct bench_stats give_times;
 
 /**
  * @brief Test main function

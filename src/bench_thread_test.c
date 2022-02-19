@@ -260,7 +260,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 /**
  * @brief Test setup function
  */
-static void bench_basic_thread_ops(void *arg)
+void bench_basic_thread_ops(void *arg)
 {
 	uint32_t  i;
 

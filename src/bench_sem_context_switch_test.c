@@ -10,13 +10,13 @@
 #include "bench_api.h"
 #include "bench_utils.h"
 
-bench_time_t timestamp_start_sema_t_c;
-bench_time_t timestamp_end_sema_t_c;
-bench_time_t timestamp_start_sema_g_c;
-bench_time_t timestamp_end_sema_g_c;
+static bench_time_t timestamp_start_sema_t_c;
+static bench_time_t timestamp_end_sema_t_c;
+static bench_time_t timestamp_start_sema_g_c;
+static bench_time_t timestamp_end_sema_g_c;
 
-struct bench_stats take_times;
-struct bench_stats give_times;
+static struct bench_stats take_times;
+static struct bench_stats give_times;
 
 /**
  * @brief Test main function.
