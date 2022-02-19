@@ -192,8 +192,10 @@ void bench_thread_yield(void *arg)
 	report_stats("(context switch)");
 }
 
+#ifdef RUN_THREAD_SWITCH_YIELD
 int main(void)
 {
 	bench_test_init(bench_thread_yield);
 	return 0;
 }
+#endif

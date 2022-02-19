@@ -420,8 +420,10 @@ void bench_mutex_lock_unlock_test(void *arg)
 	bench_timing_stop();
 }
 
+#ifdef RUN_MUTEX_LOCK_UNLOCK
 int main(void)
 {
 	bench_test_init(bench_mutex_lock_unlock_test);
 	return 0;
 }
+#endif

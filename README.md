@@ -20,7 +20,7 @@ cmake -GNinja -DRTOS=zephyr -DTEST=<test> -DBOARD=<board> -S . -B build
 That will generate the build files, for `ninja`, in the `build` directory.
 
 * `<test>` is which test to run (check `AVAILABLE_TESTS` variables in
-`CMakeLists.txt` to see available tests).
+`CMakeLists.txt` to see available tests). If omitted, all tests are run.
 
 * `<board>` is the target board.
 
@@ -93,7 +93,7 @@ That will generate the build files, for `ninja`, in the `build` directory.
 Note that only `FRDM K64F` is supported for FreeRTOS.
 
 * `<test>` is which test to run (check `AVAILABLE_TESTS` variables in
-`CMakeLists.txt` to see available tests).
+`CMakeLists.txt` to see available tests). If omitted, all tests are run.
 
 Then, to build one can use:
 

@@ -80,8 +80,10 @@ void bench_interrupt_latency_init(void *arg)
 	bench_interrupt_to_thread();
 }
 
+#ifdef RUN_INTERRUPT_LATENCY
 int main(void)
 {
 	bench_test_init(bench_interrupt_latency_init);
 	return 0;
 }
+#endif

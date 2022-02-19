@@ -90,8 +90,10 @@ void bench_sem_context_switch_init(void *arg)
 	bench_timing_stop();
 }
 
+#ifdef RUN_SEM_CONTEXT_SWITCH
 int main(void)
 {
 	bench_test_init(bench_sem_context_switch_init);
 	return 0;
 }
+#endif

@@ -301,8 +301,10 @@ void bench_basic_thread_ops(void *arg)
 	report_stats("(context switch)");
 }
 
+#ifdef RUN_THREAD
 int main(void)
 {
 	bench_test_init(bench_basic_thread_ops);
 	return 0;
 }
+#endif

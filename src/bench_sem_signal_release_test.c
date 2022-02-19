@@ -80,8 +80,10 @@ void bench_sem_signal_release_init(void *param)
 	bench_sem_signal_release();
 }
 
+#ifdef RUN_SEM_SIGNAL_RELEASE
 int main(void)
 {
 	bench_test_init(bench_sem_signal_release_init);
 	return 0;
 }
+#endif
