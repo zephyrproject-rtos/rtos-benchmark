@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-#include "../../src/bench_api.h"
+#include "bench_api.h"
 #include "bench_porting_layer_zephyr.h"
 #include <zephyr.h>
 #include <timing/timing.h>

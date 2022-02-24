@@ -28,6 +28,9 @@ if (NOT RTOS IN_LIST AVAILABLE_RTOSES)
     message(FATAL_ERROR "Choose either [zephyr] or [freertos]")
 endif()
 
+# Add include directory for bench_api.h and bench_utils.h
+include_directories(h)
+
 if (${RTOS} STREQUAL zephyr)
     set(BOARD qemu_x86)
     set(CONF_FILE zephyr/prj.conf)

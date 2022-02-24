@@ -1,4 +1,4 @@
-#include "../src/bench_api.h"
+#include "bench_api.h"
 #include "bench_porting_layer_freertos.h"
 
 /* FreeRTOS kernel includes. */

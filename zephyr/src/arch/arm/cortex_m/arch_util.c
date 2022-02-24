@@ -1,5 +1,5 @@
-#include "../../../../../src/bench_api.h"
-#include "../../../../../src/bench_utils.h"
+#include "bench_api.h"
+#include "bench_utils.h"
 
 extern void z_arm_int_exit();
 extern void *_vector_table[];

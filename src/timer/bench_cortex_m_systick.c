@@ -10,8 +10,8 @@
 	#error "** Update bench_cortex_m_systick.c header files for this RTOS"
 #endif
 
-#include "../bench_api.h"
-#include "../bench_utils.h"
+#include "bench_api.h"
+#include "bench_utils.h"
 
 /**
  * @brief Get the number of elapsed cycles between two raw cycle counts.
