@@ -19,6 +19,8 @@ typedef void * bench_work;
 		PRINTF("%s \t:\t%u cycles \t,\t%u ns\n", ##__VA_ARGS__); \
 	} while(0)
 
+#define __weak __attribute__((__weak__))
+
 /* https://mcuoneclipse.com/2017/01/30/cycle-counting-on-arm-cortex-m-with-dwt/ */
 
 /* DWT (Data Watchpoint and Trace) registers, only exists on ARM Cortex with a DWT unit */
