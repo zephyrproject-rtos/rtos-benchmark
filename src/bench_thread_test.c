@@ -150,6 +150,7 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	bench_time_t  start;
 	bench_time_t  end;
 
+#ifndef FREERTOS
 	/* Create, but do not start the higher priority thread */
 
 	bench_thread_create(THREAD_HIGH, "thread_suspend_resume",
@@ -163,6 +164,12 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	/* Helper thread executed and then self-suspended. */
 
 	end = bench_timing_counter_get();
+#else
+	start = bench_timing_counter_get();
+	bench_thread_create(THREAD_HIGH, "thread_suspend_resume",
+				priority - 1, bench_set2_helper, NULL);
+	end = bench_timing_counter_get();
+#endif
 
 	/* Update times for both starting and resuming the thread */
 
@@ -232,9 +239,11 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	start = bench_timing_counter_get();
 	bench_thread_start(THREAD_LOW);
 	end = bench_timing_counter_get();
+#ifndef FREERTOS
 	bench_stats_update(&time_to_start,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
+#endif
 
 	/* Suspend the low priority thread (no context switch) */
 
