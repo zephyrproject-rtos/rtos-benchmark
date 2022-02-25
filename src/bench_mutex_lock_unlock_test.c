@@ -70,7 +70,7 @@ static void report_stats(void)
 	int i;
 
 	for (i = 0; i < NUM_TIMES; i++) {
-		printf(report_strings[i],
+		PRINTF(report_strings[i],
 		       bench_timing_cycles_to_ns(times[i].min),
 		       bench_timing_cycles_to_ns(times[i].max),
 		       bench_timing_cycles_to_ns(times[i].avg));

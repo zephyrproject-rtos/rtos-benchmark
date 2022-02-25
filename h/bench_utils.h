@@ -18,15 +18,6 @@
 #include "../freertos/bench_porting_layer_freertos.h"
 #endif /* FREERTOS */
 
-#define PRINT_STATS(x, y) \
-	PRINT_F(x, y, (uint32_t) bench_timing_cycles_to_ns(y))
-
-#define PRINT_STATS_AVG(x, y, counter)	\
-	PRINT_F(x, y / counter, (uint32_t)timing_cycles_to_ns_avg(y, counter))
-
-#define PRINT_OVERFLOW_ERROR()			\
-	printk(" Error: tick occurred\n")
-
 struct bench_stats {
 	bench_time_t avg;
 	bench_time_t min;

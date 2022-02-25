@@ -39,11 +39,11 @@ static void reset_time_stats(void)
  */
 static void report_stats(const char *description)
 {
-        printf("Yield %s: min %llu ns, max %llu ns, avg %llu ns\n",
-               description,
-               bench_timing_cycles_to_ns(time_to_yield.min),
-               bench_timing_cycles_to_ns(time_to_yield.max),
-               bench_timing_cycles_to_ns(time_to_yield.avg));
+	PRINTF("Yield %s: min %llu ns, max %llu ns, avg %llu ns\n",
+	       description,
+	       bench_timing_cycles_to_ns(time_to_yield.min),
+	       bench_timing_cycles_to_ns(time_to_yield.max),
+	       bench_timing_cycles_to_ns(time_to_yield.avg));
 }
 
 /**
@@ -51,7 +51,7 @@ static void report_stats(const char *description)
  */
 static void bench_set2_helper(void *args)
 {
-        ARG_UNUSED(args);
+	ARG_UNUSED(args);
 
 	/*
 	 * This helper thread is expected to execute to the first yield
@@ -59,11 +59,11 @@ static void bench_set2_helper(void *args)
 	 * of the benchmarking.
 	 */
 
-        bench_yield();
+	bench_yield();
 
 	helper_start = bench_timing_counter_get();
 
-        bench_yield();
+	bench_yield();
 }
 
 
@@ -113,9 +113,9 @@ static void gather_set2_stats(int priority, uint32_t iteration)
  */
 static void bench_set1_helper(void *args)
 {
-        ARG_UNUSED(args);
+	ARG_UNUSED(args);
 
-        /* This routine intentionally does nothing */
+	/* This routine intentionally does nothing */
 }
 
 /**

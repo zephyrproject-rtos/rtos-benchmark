@@ -12,13 +12,6 @@ typedef void * bench_work;
 
 #include "fsl_debug_console.h"
 
-#define BENCH_PRINTF(FMT, ...) PRINTF(FMT, ##__VA_ARGS__)
-
-#define PRINT_F(...) \
-	do { \
-		PRINTF("%s \t:\t%u cycles \t,\t%u ns\n", ##__VA_ARGS__); \
-	} while(0)
-
 #define __weak __attribute__((__weak__))
 
 /* https://mcuoneclipse.com/2017/01/30/cycle-counting-on-arm-cortex-m-with-dwt/ */
