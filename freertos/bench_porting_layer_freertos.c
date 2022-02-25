@@ -17,8 +17,17 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 
+#include <assert.h>
+
 #define MAX_SEMAPHORES 2
+#define MAX_THREADS 10
+#define STACK_SIZE 128
+#define MAX_MUTEXES 1
+
+
 static SemaphoreHandle_t semaphores[MAX_SEMAPHORES];
+static TaskHandle_t threads[MAX_THREADS];
+static SemaphoreHandle_t mutexes[MAX_MUTEXES];
 
 #define benchmark_task_PRIORITY (configMAX_PRIORITIES - 1)
 
@@ -107,55 +116,78 @@ void bench_free(void *ptr)
 void bench_thread_start(int thread_id)
 {
 	ARG_UNUSED(thread_id);
+
+	// There's no thread start concept on FreeRTOS - a task is started
+	// when it's created. So this is a no-op.
+}
+
+static UBaseType_t map_prio(int prio)
+{
+	// FreeRTOS priorities have smaller numbers with lower priorities
+	// So we need to remap a small number to a big one, and vice versa
+
+	assert(prio >= 0);
+
+	return configMAX_PRIORITIES - prio;
 }
 
 void bench_thread_set_priority(int priority)
 {
-	ARG_UNUSED(priority);
+	vTaskPrioritySet(NULL, map_prio(priority));
 }
 
 int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	void (*entry_function)(void *), void *args)
 {
-	ARG_UNUSED(thread_id);
-	ARG_UNUSED(thread_name);
-	ARG_UNUSED(priority);
-	ARG_UNUSED(entry_function);
-	ARG_UNUSED(args);
+	BaseType_t ret;
+
+	if (thread_id < 0 || thread_id > MAX_THREADS)
+		return BENCH_ERROR;
+
+	ret = xTaskCreate(entry_function, thread_name, STACK_SIZE, args,
+			  map_prio(priority), &threads[thread_id]);
+
+	if (ret != pdPASS)
+		return BENCH_ERROR;
+
+	return BENCH_SUCCESS;
 }
 
 void bench_thread_resume(int thread_id)
 {
-	ARG_UNUSED(thread_id);
+	vTaskResume(threads[thread_id]);
 }
 
 void bench_thread_suspend(int thread_id)
 {
-	ARG_UNUSED(thread_id);
+	vTaskSuspend(threads[thread_id]);
 }
 
 void bench_thread_abort(int thread_id)
 {
-	ARG_UNUSED(thread_id);
+	vTaskDelete(threads[thread_id]);
 }
 
 void bench_yield(void)
 {
+	taskYIELD();
 }
 
 int bench_mutex_create(int mutex_id)
 {
-	ARG_UNUSED(mutex_id);
+	assert(mutex_id < MAX_MUTEXES);
+
+	mutexes[mutex_id] = xSemaphoreCreateRecursiveMutex();
 }
 
 int bench_mutex_lock(int mutex_id)
 {
-	ARG_UNUSED(mutex_id);
+	xSemaphoreTakeRecursive(mutexes[mutex_id], portMAX_DELAY);
 }
 
 int bench_mutex_unlock(int mutex_id)
 {
-	ARG_UNUSED(mutex_id);
+	xSemaphoreGiveRecursive(mutexes[mutex_id]);
 }
 
 void bench_sync_ticks(void)
