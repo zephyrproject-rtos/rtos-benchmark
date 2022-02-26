@@ -71,6 +71,14 @@ static void reset_time_stats(void)
  */
 static void report_stats(const char *description)
 {
+	if (time_to_create.avg != 0) {
+		PRINTF("Create a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
+		       description,
+		       bench_timing_cycles_to_ns(time_to_create.min),
+		       bench_timing_cycles_to_ns(time_to_create.max),
+		       bench_timing_cycles_to_ns(time_to_create.avg));
+	}
+
 	if (time_to_start.avg != 0) {
 		PRINTF("Start a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
 		       description,
