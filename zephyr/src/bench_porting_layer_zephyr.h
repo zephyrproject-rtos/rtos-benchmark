@@ -15,4 +15,6 @@ typedef struct k_work bench_work;
 
 #define PRINTF(FMT, ...) printk(FMT, ##__VA_ARGS__)
 
+#define BENCH_LAST_PRIORITY (CONFIG_NUM_PREEMPT_PRIORITIES - 1)
+
 #endif

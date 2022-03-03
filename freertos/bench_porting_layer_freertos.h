@@ -12,6 +12,8 @@ typedef void * bench_work;
 
 #include "fsl_debug_console.h"
 
+#define BENCH_LAST_PRIORITY (configMAX_PRIORITIES - 1)
+
 #define __weak __attribute__((__weak__))
 
 /* https://mcuoneclipse.com/2017/01/30/cycle-counting-on-arm-cortex-m-with-dwt/ */

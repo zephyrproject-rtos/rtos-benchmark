@@ -27,7 +27,7 @@
 #define THREAD_LOW      0
 #define THREAD_HIGH     1
 
-#define MAIN_PRIORITY  10    /* Priority of main thread in the system */
+#define MAIN_PRIORITY   (BENCH_LAST_PRIORITY - 2)    /* Priority of main thread in the system */
 
 static bench_time_t helper_start;        /* helper thread start timestamp */
 static bench_time_t helper_end;          /* helper thread end timestamp */

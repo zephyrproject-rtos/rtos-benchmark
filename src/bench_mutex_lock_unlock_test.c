@@ -23,7 +23,7 @@
 #define THREAD_LOW  0       /* Low priority thread ID */
 #define THREAD_HIGH 1       /* High priority thread ID */
 
-#define MAIN_PRIORITY  10
+#define MAIN_PRIORITY   (BENCH_LAST_PRIORITY - 2)
 
 #define TIME_TO_LOCK                0
 #define TIME_TO_UNLOCK              1

@@ -19,7 +19,7 @@
 #define THREAD_LOW      0
 #define THREAD_HELPER   1
 
-#define MAIN_PRIORITY   10
+#define MAIN_PRIORITY   (BENCH_LAST_PRIORITY - 2)
 
 
 static bench_time_t  helper_start;

@@ -69,7 +69,7 @@ void bench_sem_context_switch_init(void *arg)
 
 	bench_sem_create(0, 0, 1);
 
-	bench_thread_set_priority(10); /* Lower main test thread priority */
+	bench_thread_set_priority(BENCH_LAST_PRIORITY); /* Lower main test thread priority */
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		bench_sem_context_switch_low_prio_give(i);
