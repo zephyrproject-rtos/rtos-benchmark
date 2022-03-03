@@ -164,11 +164,6 @@ int bench_mutex_unlock(int mutex_id)
 	return BENCH_SUCCESS;
 }
 
-void bench_irq_offload(const void *irq_offload_routine, const void *parameter)
-{
-	irq_offload(irq_offload_routine, parameter);
-}
-
 void *bench_malloc(size_t size)
 {
 	return k_malloc(size);

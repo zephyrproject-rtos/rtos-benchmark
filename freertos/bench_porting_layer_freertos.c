@@ -158,12 +158,6 @@ int bench_mutex_unlock(int mutex_id)
 	ARG_UNUSED(mutex_id);
 }
 
-void bench_irq_offload(const void *irq_offload_routine, const void *parameter)
-{
-	ARG_UNUSED(irq_offload_routine);
-	ARG_UNUSED(parameter);
-}
-
 void bench_sync_ticks(void)
 {
 }

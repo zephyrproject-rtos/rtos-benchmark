@@ -235,18 +235,6 @@ int bench_mutex_lock(int mutex_id);
 int bench_mutex_unlock(int mutex_id);
 
 /**
- * @brief Run a function in interrupt context
- *
- * This function synchronously runs the provided function in interrupt
- * context, passing in the supplied device.
- *
- * @param irq_offload_routine The function to run
- * @param parameter Argument to pass to the function when it is run as an
- * interrupt
- */
-void bench_irq_offload(const void *irq_offload_routine, const void *parameter);
-
-/**
  * @brief Allocate memory from the heap.
  *
  * @param size Size of memory to be allocated.
