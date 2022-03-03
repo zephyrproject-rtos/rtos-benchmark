@@ -173,3 +173,16 @@ void bench_free(void *ptr)
 {
 	k_free(ptr);
 }
+
+void bench_thread_exit(void)
+{
+	// NO-op on Zephyr
+}
+
+void bench_sleep(uint32_t msec)
+{
+	if (msec == 0)
+		return;
+
+	k_sleep(K_MSEC(msec));
+}

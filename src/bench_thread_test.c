@@ -134,6 +134,8 @@ static void bench_set2_helper(void *args)
 
 	helper_end = bench_timing_counter_get();
 	helper_start = helper_end;
+
+	bench_thread_exit();
 }
 
 /**
@@ -266,12 +268,9 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 #endif
 
 	/*
-	 * Lower and then restore the priority of the current thread to allow
-	 * the otherwise lower priority thread to finish.
+	 * Abort lower priority thread, it's done its job.
 	 */
-
-	bench_thread_set_priority(priority + 2);
-	bench_thread_set_priority(priority);
+	bench_thread_abort(THREAD_LOW);
 }
 
 /**
@@ -299,6 +298,7 @@ void bench_basic_thread_ops(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	report_stats("(no context switch)");
 
@@ -312,6 +312,7 @@ void bench_basic_thread_ops(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	bench_timing_stop();
 

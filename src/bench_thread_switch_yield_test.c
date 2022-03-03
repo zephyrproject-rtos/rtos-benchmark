@@ -100,12 +100,9 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 			   iteration);
 
 	/*
-	 * Lower the priority of the current thread to ensure that the
-	 * helper thread can finish.
+	 * Abort lower priority thread, it's done its job.
 	 */
-
-	bench_thread_set_priority(priority + 2);
-	bench_thread_set_priority(priority);
+	bench_thread_abort(THREAD_LOW);
 }
 
 /**
@@ -145,12 +142,9 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 			   iteration);
 
 	/*
-	 * Lower and then restore the priority of the current thread to allow
-	 * the otherwise lower priority thread to finish.
+	 * Abort lower priority thread, it's done its job.
 	 */
-
-	bench_thread_set_priority(priority + 2);
-	bench_thread_set_priority(priority);
+	bench_thread_abort(THREAD_LOW);
 }
 
 /**
@@ -178,6 +172,7 @@ void bench_thread_yield(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	report_stats("(no context switch)");
 
@@ -186,6 +181,7 @@ void bench_thread_yield(void *arg)
 	for (i = 1; i < ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	bench_timing_stop();
 

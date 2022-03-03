@@ -157,6 +157,7 @@ static void bench_unpend_helper(void *args)
 	helper_end = bench_timing_counter_get();
 
 	bench_mutex_unlock(MUTEX_ID);
+	bench_thread_exit();
 }
 
 /**
@@ -248,6 +249,7 @@ static void bench_pend_low(void *args)
 	bench_sem_give(SEM_ID);    /* Unblock the main thread */
 
 	/* Step 8 - clean up and finish */
+	bench_thread_exit();
 }
 
 /**
@@ -264,6 +266,7 @@ static void bench_pend_high(void *args)
 	/* Step 7 - clean up and finish */
 
 	bench_mutex_unlock(MUTEX_ID);
+	bench_thread_exit();
 }
 
 /**
@@ -403,18 +406,22 @@ void bench_mutex_lock_unlock_test(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_unpend_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_unpend_inheritance_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_pend_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_pend_inheritance_stats(MAIN_PRIORITY, i);
 	}
+	bench_sleep(BENCH_IDLE_TIME);
 
 	report_stats();
 	bench_timing_stop();

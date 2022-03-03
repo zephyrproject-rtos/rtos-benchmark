@@ -86,6 +86,13 @@ void bench_thread_suspend(int thread_id);
 void bench_thread_abort(int thread_id);
 
 /**
+ * @brief Exits from a thread
+ *
+ * This routine exits current thread, and clean up any resources.
+ */
+void bench_thread_exit(void);
+
+/**
  * @brief Yield the current thread
  *
  * This routine causes the current thread to yield execution to another thread of
@@ -320,5 +327,11 @@ uint32_t bench_timer_cycles_per_second(void);
  */
 uint32_t bench_timer_cycles_per_tick(void);
 
+/**
+ * @brief Sleep current thread
+ *
+ * @parem msec Time in milliseconds that current thread will sleep
+ */
+void bench_sleep(uint32_t msec);
 
 #endif /* BENCH_API_H */

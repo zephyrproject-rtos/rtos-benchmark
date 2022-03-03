@@ -238,3 +238,14 @@ uint32_t bench_timer_cycles_per_tick(void)
 {
 	return 0;
 }
+
+void bench_thread_exit(void)
+{
+	vTaskDelete(NULL);
+}
+
+void bench_sleep(uint32_t msec)
+{
+	TickType_t delay = msec / portTICK_PERIOD_MS;
+	vTaskDelay(delay);
+}

@@ -13,6 +13,7 @@ typedef void * bench_work;
 #include "fsl_debug_console.h"
 
 #define BENCH_LAST_PRIORITY (configMAX_PRIORITIES - 1)
+#define BENCH_IDLE_TIME     5
 
 #define __weak __attribute__((__weak__))
 

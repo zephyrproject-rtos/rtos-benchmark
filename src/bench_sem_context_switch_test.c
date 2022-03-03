@@ -30,6 +30,8 @@ void bench_sem_context_switch_high_prio_take(void *args)
 	timestamp_start_sema_t_c = bench_timing_counter_get();
 	bench_sem_take(0);
 	timestamp_end_sema_g_c = bench_timing_counter_get();
+
+	bench_thread_exit();
 }
 
 /**
@@ -74,6 +76,7 @@ void bench_sem_context_switch_init(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		bench_sem_context_switch_low_prio_give(i);
 		thinker();
+		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 	PRINTF("Semaphore take time (context switch) [avg min max], "
