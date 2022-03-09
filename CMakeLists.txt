@@ -116,11 +116,11 @@ project(bench)
 
 list(LENGTH TEST tests_to_run)
 if (${tests_to_run} EQUAL 0)
-    list(TRANSFORM AVAILABLE_TESTS REPLACE "(.+)" "src/bench_\\1_test.c" OUTPUT_VARIABLE sources)
+    list(TRANSFORM AVAILABLE_TESTS REPLACE "(.+)" "src/common/bench_\\1_test.c" OUTPUT_VARIABLE sources)
 
     target_sources(app PRIVATE ${sources})
-    target_sources(app PRIVATE src/bench_utils.c)
-    target_sources(app PRIVATE src/bench_all.c)
+    target_sources(app PRIVATE src/common/bench_utils.c)
+    target_sources(app PRIVATE src/common/bench_all.c)
 
     return()
 endif()
@@ -136,5 +136,5 @@ endif()
 
 string(TOUPPER ${TEST} test_upper)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUN_${test_upper}")
-target_sources(app PRIVATE src/bench_utils.c)
-target_sources(app PRIVATE src/bench_${TEST}_test.c)
+target_sources(app PRIVATE src/common/bench_utils.c)
+target_sources(app PRIVATE src/common/bench_${TEST}_test.c)
