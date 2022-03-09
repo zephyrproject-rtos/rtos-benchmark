@@ -37,7 +37,6 @@ if (${RTOS} STREQUAL zephyr)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DZEPHYR")
 
     find_package(Zephyr 2.7.0 HINTS $ENV{ZEPHYR_BASE})
-    add_subdirectory(src/timer)
     add_subdirectory(src/zephyr)
 else()
     if (NOT MCUX_SDK_PATH)

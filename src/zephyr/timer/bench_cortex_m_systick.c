@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#if defined(ZEPHYR)
-	#include <arch/arm/aarch32/cortex_m/cmsis.h>
-#else
-	#error "** Update bench_cortex_m_systick.c header files for this RTOS"
-#endif
+#include <arch/arm/aarch32/cortex_m/cmsis.h>
 
 #include "bench_api.h"
 #include "bench_utils.h"
