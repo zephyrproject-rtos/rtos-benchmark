@@ -12,7 +12,7 @@
 #endif
 
 #ifdef ZEPHYR
-#include "../zephyr/src/bench_porting_layer_zephyr.h"
+#include "../src/zephyr/bench_porting_layer_zephyr.h"
 #endif /* ZEPHYR */
 #ifdef FREERTOS
 #include "../freertos/bench_porting_layer_freertos.h"
