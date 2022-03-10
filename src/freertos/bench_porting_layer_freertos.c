@@ -195,51 +195,6 @@ void bench_sync_ticks(void)
 {
 }
 
-bench_isr_handler_t bench_timer_isr_get(void)
-{
-	return NULL;
-}
-
-void bench_timer_isr_set(bench_isr_handler_t handler)
-{
-	ARG_UNUSED(handler);
-}
-
-void bench_timer_isr_restore(bench_isr_handler_t handler)
-{
-	ARG_UNUSED(handler);
-}
-
-uint64_t bench_timer_isr_expiry_set(uint32_t usec)
-{
-	ARG_UNUSED(usec);
-
-	return 0;
-}
-
-uint64_t bench_timer_cycles_diff(uint64_t trigger, uint64_t sample)
-{
-	ARG_UNUSED(trigger);
-	ARG_UNUSED(sample);
-
-	return 0;
-}
-
-bench_time_t bench_timer_cycles_get(void)
-{
-	return 0;
-}
-
-uint32_t bench_timer_cycles_per_second(void)
-{
-	return 0;
-}
-
-uint32_t bench_timer_cycles_per_tick(void)
-{
-	return 0;
-}
-
 void bench_thread_exit(void)
 {
 	vTaskDelete(NULL);

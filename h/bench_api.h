@@ -301,7 +301,7 @@ void bench_timer_isr_restore(bench_isr_handler_t handler);
  *
  * @return Cycle count at which timer ISR will be triggered
  */
-uint64_t bench_timer_isr_expiry_set(uint32_t usec);
+bench_time_t bench_timer_isr_expiry_set(uint32_t usec);
 
 /**
  * @brief Calculate the number of cycles between the trigger and sampling points
@@ -313,7 +313,7 @@ uint64_t bench_timer_isr_expiry_set(uint32_t usec);
  *
  * @return Number of elapsed timer cycles
  */
-uint64_t bench_timer_cycles_diff(uint64_t trigger, uint64_t sample);
+bench_time_t bench_timer_cycles_diff(bench_time_t trigger, bench_time_t sample);
 
 /**
  * @brief Get the raw value of the timer cycles
