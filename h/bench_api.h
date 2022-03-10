@@ -201,6 +201,15 @@ int bench_sem_create(int sem_id, int initial_count, int maximum_count);
 void bench_sem_give(int sem_id);
 
 /**
+ * @brief Give a semaphore from inside an ISR
+ *
+ * This routine gives the semaphore, unless the semaphore is already at its maximum permitted count.
+ *
+ * @param sem_id ID of semaphore
+ */
+void bench_sem_give_from_isr(int sem_id);
+
+/**
  * @brief Take a semaphore
  *
  * This routine takes the semaphore without any timeout period. If the semaphore is

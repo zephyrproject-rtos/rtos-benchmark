@@ -64,7 +64,7 @@ static void irq_latency_isr(void *arg)
 					      bench_isr_cycles);
 
 	valid_measurement = ((int)(diff_cycles) >= 0);
-	bench_sem_give(SEM_ID);
+	bench_sem_give_from_isr(SEM_ID);
 
 	/*
 	 * There are two possible ways to this ISR. If the old timer ISR exists

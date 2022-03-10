@@ -92,6 +92,12 @@ void bench_sem_give(int sem_id)
 	return;
 }
 
+void bench_sem_give_from_isr(int sem_id)
+{
+	xSemaphoreGiveFromISR(semaphores[sem_id], NULL);
+	return;
+}
+
 int bench_sem_take(int sem_id)
 {
 	xSemaphoreTake(semaphores[sem_id], portMAX_DELAY);

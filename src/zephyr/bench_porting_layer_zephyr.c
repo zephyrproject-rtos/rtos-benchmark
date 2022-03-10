@@ -140,6 +140,11 @@ void bench_sem_give(int sem_id)
 	k_sem_give(&semaphores[sem_id]);
 }
 
+void bench_sem_give_from_isr(int sem_id)
+{
+	k_sem_give(&semaphores[sem_id]);
+}
+
 int bench_sem_take(int sem_id)
 {
 	k_sem_take(&semaphores[sem_id], K_FOREVER);
