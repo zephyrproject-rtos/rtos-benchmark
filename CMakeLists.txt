@@ -31,18 +31,9 @@ endif()
 # Add include directory for bench_api.h and bench_utils.h
 include_directories(h)
 
-if (${RTOS} STREQUAL zephyr)
-    if (EXISTS src/${RTOS}/${RTOS}.cmake)
-        include(src/${RTOS}/${RTOS}.cmake)
-    endif()
-
-    add_subdirectory(src/${RTOS})
-else()
-    if (EXISTS src/${RTOS}/${RTOS}.cmake)
-        include(src/${RTOS}/${RTOS}.cmake)
-    endif()
-    add_subdirectory(src/${RTOS})
-endif()
+# Include any ${RTOS} specific build rules
+include(src/${RTOS}/${RTOS}.cmake)
+add_subdirectory(src/${RTOS})
 
 project(bench)
 
