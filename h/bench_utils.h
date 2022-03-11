@@ -31,6 +31,16 @@ void bench_stats_reset(struct bench_stats *stats);
 void bench_stats_update(struct bench_stats *stats, bench_time_t value,
 			uint32_t iteration);
 
+/**
+ * @brief Display the test's title line
+ */
+void bench_stats_report_title(const char *title);
+
+/**
+ * @brief Display one line of statistics for a given test
+ */
+void bench_stats_report_line(const char *summary, const struct bench_stats *stats);
+
 #ifdef THINKER_ENABLED
 void thinker(void);
 #else
