@@ -14,6 +14,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mthumb")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=hard")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__STARTUP_CLEAR_BSS")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSYS_CLOCK_HW_CYCLES_PER_SEC=120000000")
+
+set(CONFIG_ARM ON)
+set(CONFIG_CPU_CORTEX_M ON)
 
 set(CMAKE_TOOLCHAIN_FILE ${MCUX_SDK_PATH}/tools/cmake_toolchain_files/armgcc.cmake)
 

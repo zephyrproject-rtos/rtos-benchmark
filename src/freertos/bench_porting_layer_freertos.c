@@ -16,6 +16,7 @@
 
 #include "pin_mux.h"
 #include "clock_config.h"
+#include "arch_api.h"
 
 #include <assert.h>
 
@@ -51,38 +52,32 @@ void bench_test_init(void (*test_init_function)(void *))
 
 void bench_timing_init(void)
 {
-	KIN1_InitCycleCounter();
+	arch_timing_init();
 }
 
 void bench_timing_start(void)
 {
-	KIN1_ResetCycleCounter();
+	arch_timing_start();
 }
 
 void bench_timing_stop(void)
 {
-	KIN1_DisableCycleCounter();
+	arch_timing_stop();
 }
 
 bench_time_t bench_timing_counter_get(void)
 {
-	bench_time_t cycles = KIN1_GetCycleCounter(); // Copy from volatile
-	return cycles;
+	return arch_timing_counter_get();
 }
 
 bench_time_t bench_timing_cycles_get(bench_time_t *time_start, bench_time_t *time_end)
 {
-	return (*time_end - *time_start);
+	return arch_timing_cycles_get(time_start, time_end);
 }
 
 bench_time_t bench_timing_cycles_to_ns(bench_time_t cycles)
 {
-	// unsigned int timing_freq = 
-	// unsigned int timing_freq_mhz = (unsigned int)(timing_freq / 1000000);
-
-	// return (uint32_t)(arch_timing_freq_get() / 1000000);
-	// return (cycles) * (NSEC_PER_USEC) / arch_timing_freq_get_mhz();
-	return 0;
+	return arch_timing_cycles_to_ns(cycles);
 }
 
 int bench_sem_create(int sem_id, int initial_count, int maximum_count)
