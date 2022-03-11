@@ -15,8 +15,8 @@
 
 #define THREAD_LOW  0
 
-#define MAIN_THREAD_PRIORITY   10
-#define THREAD_LOW_PRIORITY    12
+#define MAIN_THREAD_PRIORITY   (BENCH_LAST_PRIORITY - 2)
+#define THREAD_LOW_PRIORITY    (BENCH_LAST_PRIORITY - 1)
 
 #define ISR_DELAY  1000     /* Time in microseconds until ISR fires */
 
@@ -118,6 +118,8 @@ static void bench_thread_low(void *args)
 		 * powering down.
 		 */
 	}
+
+	bench_thread_exit();
 }
 
 /**
@@ -160,7 +162,7 @@ void bench_interrupt_latency_test(void *arg)
 	/*
 	 * Reset timer interrupt frequency to 1 Hz
 	 * (or closest that is allowed).
-	 */ 
+	 */
 
 	bench_timer_isr_restore(old_timer_isr);
 
