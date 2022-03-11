@@ -76,7 +76,12 @@ void bench_sem_signal_release_init(void *param)
 #ifdef RUN_SEM_SIGNAL_RELEASE
 int main(void)
 {
+	PRINTF("\n *** Starting! ***\n\n");
+
 	bench_test_init(bench_sem_signal_release_init);
+
+	PRINTF("\n *** Done! ***\n");
+
 	return 0;
 }
 #endif

@@ -180,7 +180,12 @@ void bench_interrupt_latency_test(void *arg)
 #ifdef RUN_INTERRUPT_LATENCY
 int main(void)
 {
+	PRINTF("\n *** Starting! ***\n\n");
+
 	bench_test_init(bench_interrupt_latency_test);
+
+	PRINTF("\n *** Done! ***\n");
+
 	return 0;
 }
 #endif

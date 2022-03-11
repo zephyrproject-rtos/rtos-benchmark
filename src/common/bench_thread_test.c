@@ -287,7 +287,12 @@ void bench_basic_thread_ops(void *arg)
 #ifdef RUN_THREAD
 int main(void)
 {
+	PRINTF("\n *** Starting! ***\n\n");
+
 	bench_test_init(bench_basic_thread_ops);
+
+	PRINTF("\n *** Done! ***\n");
+
 	return 0;
 }
 #endif
