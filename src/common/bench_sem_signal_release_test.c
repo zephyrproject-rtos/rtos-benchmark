@@ -28,6 +28,7 @@ void bench_sem_signal_release()
 	/* Measure average semaphore signal time */
 	bench_timing_start();
 	bench_stats_reset(&give_times);
+	bench_stats_report_title("Semaphore stats");
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		timestamp_start = bench_timing_counter_get();
@@ -40,11 +41,7 @@ void bench_sem_signal_release()
 
 	bench_timing_stop();
 
-	PRINTF("Semaphore give time (no context switch) [avg min max], "
-	       "%llu, %llu, %llu\n",
-	       bench_timing_cycles_to_ns(give_times.avg),
-	       bench_timing_cycles_to_ns(give_times.min),
-	       bench_timing_cycles_to_ns(give_times.max));
+	bench_stats_report_line("Give (no context switch)", &give_times);
 
 	/* Measure average semaphore test time */
 	bench_timing_start();
@@ -61,11 +58,7 @@ void bench_sem_signal_release()
 
 	bench_timing_stop();
 
-	PRINTF("Semaphore take time (no context switch) [avg min max], "
-	       "%llu, %llu, %llu\n",
-	       bench_timing_cycles_to_ns(take_times.avg),
-	       bench_timing_cycles_to_ns(take_times.min),
-	       bench_timing_cycles_to_ns(take_times.max));
+	bench_stats_report_line("Take (no context switch)", &take_times);
 }
 
 /**

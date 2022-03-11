@@ -59,56 +59,6 @@ static void reset_time_stats(void)
 }
 
 /**
- * @brief Report the collected statistics
- *
- * This routine reports the collected times. It is used for both reporting
- * times that involved a context and those that did not. If there were
- * not any times collected for a given measurement, its mean average is
- * recorded as 0 and nothing will be printed.
- *
- * @param description A string used for additional information about what is
- *        being measured: "(context switch)" or "(no context switch)"
- */
-static void report_stats(const char *description)
-{
-	if (time_to_create.avg != 0) {
-		PRINTF("Create a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
-		       description,
-		       bench_timing_cycles_to_ns(time_to_create.min),
-		       bench_timing_cycles_to_ns(time_to_create.max),
-		       bench_timing_cycles_to_ns(time_to_create.avg));
-	}
-
-	if (time_to_start.avg != 0) {
-		PRINTF("Start a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
-		       description,
-		       bench_timing_cycles_to_ns(time_to_start.min),
-		       bench_timing_cycles_to_ns(time_to_start.max),
-		       bench_timing_cycles_to_ns(time_to_start.avg));
-	}
-
-	PRINTF("Suspend a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
-	       description,
-	       bench_timing_cycles_to_ns(time_to_suspend.min),
-	       bench_timing_cycles_to_ns(time_to_suspend.max),
-	       bench_timing_cycles_to_ns(time_to_suspend.avg));
-
-	PRINTF("Resume a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
-	       description,
-	       bench_timing_cycles_to_ns(time_to_resume.min),
-	       bench_timing_cycles_to_ns(time_to_resume.max),
-	       bench_timing_cycles_to_ns(time_to_resume.avg));
-
-	if (time_to_terminate.avg != 0) {
-		PRINTF("Terminate a thread %s: min %llu ns, max %llu ns, avg %llu ns\n",
-		       description,
-		       bench_timing_cycles_to_ns(time_to_terminate.min),
-		       bench_timing_cycles_to_ns(time_to_terminate.max),
-		       bench_timing_cycles_to_ns(time_to_terminate.avg));
-	}
-}
-
-/**
  * @brief Entry point to helper thread to gathering set #1 data
  *
  * This routine intentionally does nothing.
@@ -292,6 +242,7 @@ void bench_basic_thread_ops(void *arg)
 	 */
 
 	reset_time_stats();
+	bench_stats_report_title("Thread stats");
 
 	bench_timing_start();
 
@@ -300,7 +251,14 @@ void bench_basic_thread_ops(void *arg)
 	}
 	bench_sleep(BENCH_IDLE_TIME);
 
-	report_stats("(no context switch)");
+	bench_stats_report_line("Create (no context switch)",
+				&time_to_create);
+	bench_stats_report_line("Start  (no context switch)",
+				&time_to_start);
+	bench_stats_report_line("Suspend (no context switch)",
+				&time_to_suspend);
+	bench_stats_report_line("Resume (no context switch)",
+				&time_to_resume);
 
 	/*
 	 * Gather stats for basic thread operations for where there are
@@ -316,7 +274,14 @@ void bench_basic_thread_ops(void *arg)
 
 	bench_timing_stop();
 
-	report_stats("(context switch)");
+	bench_stats_report_line("Start  (context switch)",
+				&time_to_start);
+	bench_stats_report_line("Suspend (context switch)",
+				&time_to_suspend);
+	bench_stats_report_line("Resume (context switch)",
+				&time_to_resume);
+	bench_stats_report_line("Terminate (context switch)",
+				&time_to_terminate);
 }
 
 #ifdef RUN_THREAD

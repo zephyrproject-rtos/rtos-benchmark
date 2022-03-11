@@ -68,6 +68,8 @@ void bench_sem_context_switch_init(void *arg)
 
 	bench_stats_reset(&take_times);
 	bench_stats_reset(&give_times);
+	bench_stats_report_title("Semaphore stats");
+
 
 	bench_sem_create(0, 0, 1);
 
@@ -79,16 +81,8 @@ void bench_sem_context_switch_init(void *arg)
 		bench_sleep(BENCH_IDLE_TIME);
 	}
 
-	PRINTF("Semaphore take time (context switch) [avg min max], "
-	       " %llu, %llu, %llu\n",
-	       bench_timing_cycles_to_ns(take_times.avg),
-	       bench_timing_cycles_to_ns(take_times.min),
-	       bench_timing_cycles_to_ns(take_times.max));
-	PRINTF("Semaphore give cycles (context switch) [avg min max], "
-	       " %llu, %llu, %llu\n",
-	       bench_timing_cycles_to_ns(give_times.avg),
-	       bench_timing_cycles_to_ns(give_times.min),
-	       bench_timing_cycles_to_ns(give_times.max));
+	bench_stats_report_line("Take (context switch)", &take_times);
+	bench_stats_report_line("Give (context switch)", &give_times);
 
 	bench_timing_stop();
 }

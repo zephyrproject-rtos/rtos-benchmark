@@ -42,14 +42,14 @@ static bench_time_t  helper_start;
 static bench_time_t  helper_end;
 
 static const char *report_strings[NUM_TIMES] = {
-    "1. Lock an unowned mutex: min %llu ns, max %llu ns, avg %llu ns\n",
-    "2. Unlock a mutex (no waiters): min %llu ns, max %llu ns, avg %llu ns\n",
-    "3. Recursively lock a mutex: min %llu ns, max %llu ns, avg %llu ns\n",
-    "4. Recursively unlock a mutex: min %llu ns, max %llu ns, avg %llu ns\n",
-    "5. Unlock a mutex and unpend thread (no ctx switch): min %llu ns, max %llu ns, avg %llu ns\n",
-    "6. Unlock a mutex and unpend thread (with ctx switch): min %llu ns, max %llu ns, avg %llu ns\n",
-    "7. Pend on a mutex (no priority inheritance): min %llu ns, max %llu ns, avg %llu ns\n",
-    "8. Pend on a mutex (priority inheritance): min %llu ns, max %llu ns, avg %llu ns\n",
+    "Lock (no owner)",
+    "Unlock (no waiters)",
+    "Recursive lock",
+    "Recursive unlock",
+    "Unlock with unpend (no context switch)",
+    "Unlock with unpend (context switch)",
+    "Pend (no priority inheritance)",
+    "Pend (priority inheritance)",
 };
 
 /**
@@ -70,10 +70,7 @@ static void report_stats(void)
 	int i;
 
 	for (i = 0; i < NUM_TIMES; i++) {
-		PRINTF(report_strings[i],
-		       bench_timing_cycles_to_ns(times[i].min),
-		       bench_timing_cycles_to_ns(times[i].max),
-		       bench_timing_cycles_to_ns(times[i].avg));
+		bench_stats_report_line(report_strings[i], &times[i]);
 	}
 }
 
@@ -386,6 +383,7 @@ void bench_mutex_lock_unlock_test(void *arg)
 	bench_timing_start();
 
 	reset_time_stats();
+	bench_stats_report_title("Mutex Stats");
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_lock_unlock_stats(i);

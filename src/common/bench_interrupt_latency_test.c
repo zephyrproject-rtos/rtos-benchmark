@@ -37,10 +37,7 @@ static volatile bool run_thread_low = true;
  */
 void report_stats(void)
 {
-	printf("Interrupt Latency: min %llu ns, max %llu ns, avg %llu ns\n",
-	       bench_timing_cycles_to_ns(latency_times.min),
-	       bench_timing_cycles_to_ns(latency_times.max),
-	       bench_timing_cycles_to_ns(latency_times.avg));
+	bench_stats_report_line("Latency", &latency_times);
 }
 
 /**
@@ -131,6 +128,7 @@ void bench_interrupt_latency_test(void *arg)
 	uint32_t  i;
 
 	bench_stats_reset(&latency_times);
+	bench_stats_report_title("Interrupt Stats");
 
 	bench_sem_create(SEM_ID, 0, 1);
 
@@ -151,9 +149,6 @@ void bench_interrupt_latency_test(void *arg)
 	bench_timer_isr_set(irq_latency_isr);
 
 	bench_sync_ticks();
-
-	printf("Please wait about %u seconds for results.\n",
-		(ITERATIONS * ISR_DELAY) / 1000000);
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		if (!gather_irq_latency_stats(i)) {

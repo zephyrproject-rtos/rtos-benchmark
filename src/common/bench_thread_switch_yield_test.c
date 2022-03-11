@@ -35,18 +35,6 @@ static void reset_time_stats(void)
 }
 
 /**
- * @brief Report the collected statistics
- */
-static void report_stats(const char *description)
-{
-	PRINTF("Yield %s: min %llu ns, max %llu ns, avg %llu ns\n",
-	       description,
-	       bench_timing_cycles_to_ns(time_to_yield.min),
-	       bench_timing_cycles_to_ns(time_to_yield.max),
-	       bench_timing_cycles_to_ns(time_to_yield.avg));
-}
-
-/**
  * @brief Entry point to helper thread to gathering set #2 data
  */
 static void bench_set2_helper(void *args)
@@ -166,6 +154,7 @@ void bench_thread_yield(void *arg)
 	 */
 
 	reset_time_stats();
+	bench_stats_report_title("Yield stats");
 
 	bench_timing_start();
 
@@ -174,7 +163,7 @@ void bench_thread_yield(void *arg)
 	}
 	bench_sleep(BENCH_IDLE_TIME);
 
-	report_stats("(no context switch)");
+	bench_stats_report_line("Yield (no context switch)", &time_to_yield);
 
 	reset_time_stats();
 
@@ -185,7 +174,7 @@ void bench_thread_yield(void *arg)
 
 	bench_timing_stop();
 
-	report_stats("(context switch)");
+	bench_stats_report_line("Yield (context switch)", &time_to_yield);
 }
 
 #ifdef RUN_THREAD_SWITCH_YIELD
