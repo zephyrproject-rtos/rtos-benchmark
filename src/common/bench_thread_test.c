@@ -248,8 +248,8 @@ void bench_basic_thread_ops(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
+		bench_sleep(BENCH_IDLE_TIME);
 	}
-	bench_sleep(BENCH_IDLE_TIME);
 
 	bench_stats_report_line("Create (no context switch)",
 				&time_to_create);
@@ -269,8 +269,8 @@ void bench_basic_thread_ops(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
+		bench_sleep(BENCH_IDLE_TIME);
 	}
-	bench_sleep(BENCH_IDLE_TIME);
 
 	bench_timing_stop();
 
