@@ -214,8 +214,6 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	bench_stats_update(&time_to_resume,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
-#if 0
-#endif
 
 	/*
 	 * Abort lower priority thread, it's done its job.
@@ -253,8 +251,10 @@ void bench_basic_thread_ops(void *arg)
 
 	bench_stats_report_line("Create (no context switch)",
 				&time_to_create);
+#ifndef FREERTOS
 	bench_stats_report_line("Start  (no context switch)",
 				&time_to_start);
+#endif
 	bench_stats_report_line("Suspend (no context switch)",
 				&time_to_suspend);
 	bench_stats_report_line("Resume (no context switch)",
