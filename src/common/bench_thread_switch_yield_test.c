@@ -180,11 +180,11 @@ void bench_thread_yield(void *arg)
 #ifdef RUN_THREAD_SWITCH_YIELD
 int main(void)
 {
-	PRINTF("\n *** Starting! ***\n\n");
+	PRINTF("\n\r *** Starting! ***\n\n\r");
 
 	bench_test_init(bench_thread_yield);
 
-	PRINTF("\n *** Done! ***\n");
+	PRINTF("\n\r *** Done! ***\n\r");
 
 	return 0;
 }

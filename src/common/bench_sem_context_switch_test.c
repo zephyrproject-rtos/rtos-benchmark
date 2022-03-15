@@ -90,11 +90,11 @@ void bench_sem_context_switch_init(void *arg)
 #ifdef RUN_SEM_CONTEXT_SWITCH
 int main(void)
 {
-	PRINTF("\n *** Starting! ***\n\n");
+	PRINTF("\n\r *** Starting! ***\n\n\r");
 
 	bench_test_init(bench_sem_context_switch_init);
 
-	PRINTF("\n *** Done! ***\n");
+	PRINTF("\n\r *** Done! ***\n\r");
 
 	return 0;
 }

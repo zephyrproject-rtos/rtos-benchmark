@@ -12,7 +12,7 @@ extern void bench_thread_yield(void *arg);
 
 void bench_all(void *arg)
 {
-	PRINTF("\n *** Starting! ***\n\n");
+	PRINTF("\n\r *** Starting! ***\n\n\r");
 
 	bench_basic_thread_ops(arg);
 	bench_mutex_lock_unlock_test(arg);
@@ -21,7 +21,7 @@ void bench_all(void *arg)
 	bench_thread_yield(arg);
 	bench_interrupt_latency_test(arg);
 
-	PRINTF("\n *** Done! ***\n");
+	PRINTF("\n\r *** Done! ***\n\r");
 }
 
 int main(void)

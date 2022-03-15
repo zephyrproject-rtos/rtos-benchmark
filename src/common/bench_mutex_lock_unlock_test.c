@@ -428,11 +428,11 @@ void bench_mutex_lock_unlock_test(void *arg)
 #ifdef RUN_MUTEX_LOCK_UNLOCK
 int main(void)
 {
-	PRINTF("\n *** Starting! ***\n\n");
+	PRINTF("\n\r *** Starting! ***\n\n\r");
 
 	bench_test_init(bench_mutex_lock_unlock_test);
 
-	PRINTF("\n *** Done! ***\n");
+	PRINTF("\n\r *** Done! ***\n\r");
 
 	return 0;
 }
