@@ -54,6 +54,22 @@ int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	}
 }
 
+int bench_thread_spawn(int thread_id, const char *thread_name, int priority,
+	void (*entry_function)(void *), void *args)
+{
+	ARG_UNUSED(args);
+
+	if ((thread_id < 0) || (thread_id >= MAX_THREADS)) {
+		return BENCH_ERROR;
+	}
+
+	k_thread_create(&threads[thread_id], stacks[thread_id], STACK_SIZE,
+			(k_thread_entry_t) entry_function, NULL, NULL, NULL,
+			priority, 0, K_NO_WAIT);
+
+	return BENCH_SUCCESS;
+}
+
 void bench_thread_start(int thread_id)
 {
 	k_thread_start(&threads[thread_id]);

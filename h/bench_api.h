@@ -50,6 +50,21 @@ int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	void (*entry_function)(void *), void *args);
 
 /**
+ * @brief Spawn (create and start) a thread
+ *
+ * This routine creates a thread and sets its name. It is immediately made
+ * available to schedule to run.
+ *
+ * @param thread_id       Handle for thread.
+ * @param thread_name     Name of thread.
+ * @param priority        Thread priority.
+ * @param entry_function  Thread entry function.
+ * @param args            Entry point parameter representing arguments.
+ */
+int bench_thread_spawn(int thread_id, const char *thread_name, int priority,
+	void (*entry_function)(void *), void *args);
+
+/**
  * @brief Start an initialized but unstarted thread
  *
  * This routine starts the thread by adding it to the scheduler queue for the first time.
@@ -339,8 +354,7 @@ uint32_t bench_timer_cycles_per_tick(void);
 /**
  * @brief Sleep current thread
  *
- * @parem msec Time in milliseconds that current thread will sleep
+ * @param msec Time in milliseconds that current thread will sleep
  */
 void bench_sleep(uint32_t msec);
-
 #endif /* BENCH_API_H */

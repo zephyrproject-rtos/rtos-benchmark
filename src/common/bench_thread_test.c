@@ -26,6 +26,7 @@
 
 #define THREAD_LOW      0
 #define THREAD_HIGH     1
+#define THREAD_SPAWN    2
 
 #define MAIN_PRIORITY   (BENCH_LAST_PRIORITY - 2)    /* Priority of main thread in the system */
 
@@ -45,6 +46,7 @@ static struct bench_stats time_to_start;     /* time to start a thread */
 static struct bench_stats time_to_suspend;   /* time to suspend a thread */
 static struct bench_stats time_to_resume;    /* time to resume a thread */
 static struct bench_stats time_to_terminate; /* time to terminate a thread */
+static struct bench_stats time_to_spawn;     /* time to spawn a thread */
 
 /**
  * @brief Reset time statistics
@@ -56,6 +58,7 @@ static void reset_time_stats(void)
 	bench_stats_reset(&time_to_suspend);
 	bench_stats_reset(&time_to_resume);
 	bench_stats_reset(&time_to_terminate);
+	bench_stats_reset(&time_to_spawn);
 }
 
 /**
@@ -85,6 +88,17 @@ static void bench_set2_helper(void *args)
 	helper_end = bench_timing_counter_get();
 	helper_start = helper_end;
 
+	bench_thread_exit();
+}
+
+/**
+ * @brief Entry point to helper thread to gathering thread spawn times
+ */
+static void bench_spawn_helper(void *args)
+{
+	ARG_UNUSED(args);
+
+	helper_end = bench_timing_counter_get();
 	bench_thread_exit();
 }
 
@@ -149,6 +163,15 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	bench_stats_update(&time_to_terminate,
 			   bench_timing_cycles_get(&helper_start, &end),
 			   iteration);
+
+	/* Spawn a higher priority thread. This causes a context switch. */
+
+	start = bench_timing_counter_get();
+	bench_thread_spawn(THREAD_SPAWN, "thread_spawn",
+			   priority - 1, bench_spawn_helper, NULL);
+	bench_stats_update(&time_to_spawn,
+			   bench_timing_cycles_get(&start, &helper_end),
+			   iteration);
 }
 
 /**
@@ -169,6 +192,7 @@ static void bench_set1_helper(void *args)
  * 2. Time to start a thread of lower priority
  * 3. Time to suspend a thread of lower priority
  * 4. Time to resume a thread of lower priority
+ * 5. Time to spawn a thread of lower priority
  */
 
 static void gather_set1_stats(int priority, uint32_t iteration)
@@ -215,10 +239,20 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
 
-	/*
-	 * Abort lower priority thread, it's done its job.
-	 */
+	/* Spawn a low priority thread (no context switch) */
+
+	start = bench_timing_counter_get();
+	bench_thread_spawn(THREAD_SPAWN, "thread_spawn",
+			   priority + 1, bench_spawn_helper, NULL);
+	end = bench_timing_counter_get();
+	bench_stats_update(&time_to_spawn,
+			   bench_timing_cycles_get(&start, &end),
+			   iteration);
+
+	/* Abort lower priority threads, they have done their job. */
+
 	bench_thread_abort(THREAD_LOW);
+	bench_thread_abort(THREAD_SPAWN);
 }
 
 /**
@@ -259,6 +293,8 @@ void bench_basic_thread_ops(void *arg)
 				&time_to_suspend);
 	bench_stats_report_line("Resume (no context switch)",
 				&time_to_resume);
+	bench_stats_report_line("Spawn (no context switch)",
+				&time_to_spawn);
 
 	/*
 	 * Gather stats for basic thread operations for where there are
@@ -282,6 +318,8 @@ void bench_basic_thread_ops(void *arg)
 				&time_to_resume);
 	bench_stats_report_line("Terminate (context switch)",
 				&time_to_terminate);
+	bench_stats_report_line("Spawn (context switch)",
+				&time_to_spawn);
 }
 
 #ifdef RUN_THREAD
