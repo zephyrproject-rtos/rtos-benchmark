@@ -53,6 +53,11 @@ void bench_stats_report_line(const char *summary, const struct bench_stats *stat
 	       bench_timing_cycles_to_ns(stats->max));
 }
 
+void bench_stats_report_na(const char *summary)
+{
+	PRINTF(" %-40s: %6s, %6s, %6s\n\r", summary, "n/a", "n/a", "n/a");
+}
+
 
 #ifdef THINKER_ENABLED
 struct list {

@@ -41,6 +41,11 @@ void bench_stats_report_title(const char *title);
  */
 void bench_stats_report_line(const char *summary, const struct bench_stats *stats);
 
+/**
+ * @brief Display a line of "n/a" for a given test
+ */
+void bench_stats_report_na(const char *summary);
+
 #ifdef THINKER_ENABLED
 void thinker(void);
 #else
