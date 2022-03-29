@@ -18,4 +18,13 @@ typedef struct k_work bench_work;
 #define BENCH_LAST_PRIORITY (CONFIG_NUM_PREEMPT_PRIORITIES - 1)
 #define BENCH_IDLE_TIME	    0
 
+/*
+ * Some RTOSes distinguish between creating, starting and spawining a thread.
+ * Zephyr is one such RTOS. These macros come into play when reporting
+ * results.
+ */
+
+#define RTOS_HAS_THREAD_SPAWN         1
+#define RTOS_HAS_THREAD_CREATE_START  1
+
 #endif

@@ -116,11 +116,11 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	bench_time_t  start;
 	bench_time_t  end;
 
-#ifndef FREERTOS
+#if RTOS_HAS_THREAD_CREATE_START
 	/* Create, but do not start the higher priority thread */
 
 	bench_thread_create(THREAD_HIGH, "thread_suspend_resume",
-				priority - 1, bench_set2_helper, NULL);
+			    priority - 1, bench_set2_helper, NULL);
 
 	/* Start the higher priority thread. This causes a context switch. */
 
@@ -132,8 +132,8 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	end = bench_timing_counter_get();
 #else
 	start = bench_timing_counter_get();
-	bench_thread_create(THREAD_HIGH, "thread_suspend_resume",
-				priority - 1, bench_set2_helper, NULL);
+	bench_thread_spawn(THREAD_HIGH, "thread_suspend_resume",
+			   priority - 1, bench_set2_helper, NULL);
 	end = bench_timing_counter_get();
 #endif
 
@@ -164,6 +164,8 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 			   bench_timing_cycles_get(&helper_start, &end),
 			   iteration);
 
+#if RTOS_HAS_THREAD_SPAWN
+
 	/* Spawn a higher priority thread. This causes a context switch. */
 
 	start = bench_timing_counter_get();
@@ -172,6 +174,7 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	bench_stats_update(&time_to_spawn,
 			   bench_timing_cycles_get(&start, &helper_end),
 			   iteration);
+#endif
 }
 
 /**
@@ -215,7 +218,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	start = bench_timing_counter_get();
 	bench_thread_start(THREAD_LOW);
 	end = bench_timing_counter_get();
-#ifndef FREERTOS
+#if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_update(&time_to_start,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
@@ -239,6 +242,8 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
 
+#if RTOS_HAS_THREAD_SPAWN
+
 	/* Spawn a low priority thread (no context switch) */
 
 	start = bench_timing_counter_get();
@@ -248,11 +253,14 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	bench_stats_update(&time_to_spawn,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
+#endif
 
 	/* Abort lower priority threads, they have done their job. */
 
 	bench_thread_abort(THREAD_LOW);
+#if RTOS_HAS_THREAD_SPAWN
 	bench_thread_abort(THREAD_SPAWN);
+#endif
 }
 
 /**
@@ -283,18 +291,29 @@ void bench_basic_thread_ops(void *arg)
 		bench_sleep(BENCH_IDLE_TIME);
 	}
 
+#if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_report_line("Create (no context switch)",
 				&time_to_create);
-#ifndef FREERTOS
+#else
+	bench_stats_report_na("Create (no context switch)");
+#endif
+
+#if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_report_line("Start  (no context switch)",
 				&time_to_start);
+#else
+	bench_stats_report_na("Start (no context switch)");
 #endif
 	bench_stats_report_line("Suspend (no context switch)",
 				&time_to_suspend);
 	bench_stats_report_line("Resume (no context switch)",
 				&time_to_resume);
+#if RTOS_HAS_THREAD_SPAWN
 	bench_stats_report_line("Spawn (no context switch)",
 				&time_to_spawn);
+#else
+	bench_stats_report_na("Spawn (no context switch)");
+#endif
 
 	/*
 	 * Gather stats for basic thread operations for where there are
@@ -310,16 +329,24 @@ void bench_basic_thread_ops(void *arg)
 
 	bench_timing_stop();
 
+#if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_report_line("Start  (context switch)",
 				&time_to_start);
+#else
+	bench_stats_report_na("Start  (context switch)");
+#endif
 	bench_stats_report_line("Suspend (context switch)",
 				&time_to_suspend);
 	bench_stats_report_line("Resume (context switch)",
 				&time_to_resume);
 	bench_stats_report_line("Terminate (context switch)",
 				&time_to_terminate);
+#if RTOS_HAS_THREAD_SPAWN
 	bench_stats_report_line("Spawn (context switch)",
 				&time_to_spawn);
+#else
+	bench_stats_report_na("Spawn (context switch)");
+#endif
 }
 
 #ifdef RUN_THREAD
