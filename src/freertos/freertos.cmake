@@ -53,7 +53,7 @@ target_sources(app PRIVATE ${MCUX_SDK_PATH}/devices/MK64F12/utilities/fsl_sbrk.c
 target_sources(app PRIVATE ${MCUX_SDK_PATH}/devices/MK64F12/utilities/str/fsl_str.c)
 target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/list.c)
 target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/portable/GCC/ARM_CM4F/port.c)
-target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/portable/MemMang/heap_4.c)
+# target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/portable/MemMang/heap_4.c)
 target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/queue.c)
 target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/stream_buffer.c)
 target_sources(app PRIVATE ${MCUX_SDK_PATH}/rtos/freertos/freertos_kernel/tasks.c)

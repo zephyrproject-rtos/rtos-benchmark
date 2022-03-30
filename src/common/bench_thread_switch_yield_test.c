@@ -52,6 +52,8 @@ static void bench_set2_helper(void *args)
 	helper_start = bench_timing_counter_get();
 
 	bench_yield();
+
+	bench_thread_exit();
 }
 
 
@@ -90,7 +92,7 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	/*
 	 * Abort lower priority thread, it's done its job.
 	 */
-	bench_thread_abort(THREAD_LOW);
+	bench_thread_abort(THREAD_HELPER);
 }
 
 /**
@@ -100,7 +102,9 @@ static void bench_set1_helper(void *args)
 {
 	ARG_UNUSED(args);
 
-	/* This routine intentionally does nothing */
+	/* This routine is not expected to execute. */
+
+	bench_thread_exit();
 }
 
 /**
@@ -161,7 +165,6 @@ void bench_thread_yield(void *arg)
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
 	}
-	bench_sleep(BENCH_IDLE_TIME);
 
 	bench_stats_report_line("Yield (no context switch)", &time_to_yield);
 
@@ -170,7 +173,6 @@ void bench_thread_yield(void *arg)
 	for (i = 1; i < ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
 	}
-	bench_sleep(BENCH_IDLE_TIME);
 
 	bench_timing_stop();
 

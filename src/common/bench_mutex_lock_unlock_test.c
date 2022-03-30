@@ -23,7 +23,7 @@
 #define THREAD_LOW  0       /* Low priority thread ID */
 #define THREAD_HIGH 1       /* High priority thread ID */
 
-#define MAIN_PRIORITY   (BENCH_LAST_PRIORITY - 2)
+#define MAIN_PRIORITY   (BENCH_LAST_PRIORITY - 3)
 
 #define TIME_TO_LOCK                0
 #define TIME_TO_UNLOCK              1
@@ -246,6 +246,7 @@ static void bench_pend_low(void *args)
 	bench_sem_give(SEM_ID);    /* Unblock the main thread */
 
 	/* Step 8 - clean up and finish */
+
 	bench_thread_exit();
 }
 
@@ -317,7 +318,7 @@ static void gather_pend_stats(int priority, uint32_t iteration)
 
 	bench_mutex_unlock(MUTEX_ID);
 
-	bench_thread_set_priority(priority + 3);
+	bench_thread_set_priority(priority + 2);
 
 	/* Step 9 */
 
@@ -403,22 +404,18 @@ void bench_mutex_lock_unlock_test(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_unpend_stats(MAIN_PRIORITY, i);
-		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_unpend_inheritance_stats(MAIN_PRIORITY, i);
-		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_pend_stats(MAIN_PRIORITY, i);
-		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_pend_inheritance_stats(MAIN_PRIORITY, i);
-		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 	report_stats();

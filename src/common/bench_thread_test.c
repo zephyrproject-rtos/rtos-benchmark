@@ -288,7 +288,6 @@ void bench_basic_thread_ops(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
-		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 #if RTOS_HAS_THREAD_CREATE_START
@@ -324,7 +323,6 @@ void bench_basic_thread_ops(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
-		bench_sleep(BENCH_IDLE_TIME);
 	}
 
 	bench_timing_stop();

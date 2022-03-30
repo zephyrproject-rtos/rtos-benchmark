@@ -36,7 +36,6 @@ void bench_sem_signal_release()
 		timestamp_end = bench_timing_counter_get();
 		diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
 		bench_stats_update(&give_times, diff, i);
-		thinker();
 	}
 
 	bench_timing_stop();
@@ -53,7 +52,6 @@ void bench_sem_signal_release()
 		timestamp_end = bench_timing_counter_get();
 		diff = bench_timing_cycles_get(&timestamp_start, &timestamp_end);
 		bench_stats_update(&take_times, diff, i);
-		thinker();
 	}
 
 	bench_timing_stop();

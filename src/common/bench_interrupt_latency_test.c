@@ -15,8 +15,7 @@
 
 #define THREAD_LOW  0
 
-#define MAIN_THREAD_PRIORITY   (BENCH_LAST_PRIORITY - 2)
-#define THREAD_LOW_PRIORITY    (BENCH_LAST_PRIORITY - 1)
+#define MAIN_THREAD_PRIORITY   (BENCH_LAST_PRIORITY - 3)
 
 #define ISR_DELAY  1000     /* Time in microseconds until ISR fires */
 
@@ -137,7 +136,7 @@ void bench_interrupt_latency_test(void *arg)
 	bench_thread_set_priority(MAIN_THREAD_PRIORITY);
 
 	bench_thread_create(THREAD_LOW, "thread_low",
-			    THREAD_LOW_PRIORITY, bench_thread_low, NULL);
+			    MAIN_THREAD_PRIORITY + 1, bench_thread_low, NULL);
 	bench_thread_start(THREAD_LOW);
 
 	/*
@@ -173,7 +172,7 @@ void bench_interrupt_latency_test(void *arg)
 	 * thread to finish and then restore the priority of the main thread.
 	 */
 
-	bench_thread_set_priority(THREAD_LOW_PRIORITY + 2);
+	bench_thread_set_priority(MAIN_THREAD_PRIORITY + 2);
 	bench_thread_set_priority(MAIN_THREAD_PRIORITY);
 
 	report_stats();

@@ -20,34 +20,46 @@
 
 #include <assert.h>
 
-#define MAX_SEMAPHORES 2
+#define MAX_SEMAPHORES 5
 #define MAX_THREADS 10
-#define STACK_SIZE 128
-#define MAX_MUTEXES 1
+#define STACK_SIZE (configMINIMAL_STACK_SIZE + 200)
+#define MAX_MUTEXES 5
 
 
 static SemaphoreHandle_t semaphores[MAX_SEMAPHORES];
+static StaticSemaphore_t semaphore_buffer[MAX_SEMAPHORES];
+
 static TaskHandle_t threads[MAX_THREADS];
+static StackType_t stack_buffer[MAX_THREADS][STACK_SIZE];
+static StackType_t init_stack_buffer[STACK_SIZE];
+static StaticTask_t task_buffer[MAX_THREADS];
+static StaticTask_t init_task_buffer;
+
 static SemaphoreHandle_t mutexes[MAX_MUTEXES];
+static StaticSemaphore_t mutex_buffers[MAX_MUTEXES];
 
 #define benchmark_task_PRIORITY (configMAX_PRIORITIES - 1)
 
 void bench_test_init(void (*test_init_function)(void *))
 {
+	TaskHandle_t  handle;
+
 	/* Init board hardware. */
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
 	BOARD_InitDebugConsole();
-	if (xTaskCreate(test_init_function, "benchmark", configMINIMAL_STACK_SIZE + 100, NULL, benchmark_task_PRIORITY, NULL) !=
-		pdPASS)
-	{
+
+	handle = xTaskCreateStatic(test_init_function, "benchmark", STACK_SIZE,
+				   NULL, benchmark_task_PRIORITY,
+				   init_stack_buffer, &init_task_buffer);
+	if (handle == NULL) {
 		PRINTF("Task creation failed!.\r\n");
-		while (1)
-			;
+		for (;;) {
+		}
 	}
 	vTaskStartScheduler();
-	for (;;)
-		;
+	for (;;) {
+	}
 }
 
 void bench_timing_init(void)
@@ -82,7 +94,12 @@ bench_time_t bench_timing_cycles_to_ns(bench_time_t cycles)
 
 int bench_sem_create(int sem_id, int initial_count, int maximum_count)
 {
-	semaphores[sem_id] = xSemaphoreCreateCounting(maximum_count, initial_count);
+	SemaphoreHandle_t  handle;
+
+	handle = xSemaphoreCreateCountingStatic(maximum_count, initial_count,
+						&semaphore_buffer[sem_id]);
+	semaphores[sem_id] = handle;
+
 	return BENCH_SUCCESS;
 }
 
@@ -106,12 +123,15 @@ int bench_sem_take(int sem_id)
 
 void *bench_malloc(size_t size)
 {
-	return pvPortMalloc(size);
+	(void) size;
+	return NULL;   /* Routine not expected to be used */
 }
 
 void bench_free(void *ptr)
 {
-	vPortFree(ptr);
+	(void) ptr;
+
+	return;        /* Routine not expected to be used */
 }
 
 void bench_thread_start(int thread_id)
@@ -141,15 +161,21 @@ int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	void (*entry_function)(void *), void *args)
 {
 	BaseType_t ret;
+	TaskHandle_t  handle;
 
 	if (thread_id < 0 || thread_id > MAX_THREADS)
 		return BENCH_ERROR;
 
-	ret = xTaskCreate(entry_function, thread_name, STACK_SIZE, args,
-			  map_prio(priority), &threads[thread_id]);
+	handle = xTaskCreateStatic(entry_function, thread_name, STACK_SIZE,
+				   args, map_prio(priority),
+				   stack_buffer[thread_id],
+				   &task_buffer[thread_id]);
 
-	if (ret != pdPASS)
+	threads[thread_id] = handle;
+
+	if (handle == NULL) {
 		return BENCH_ERROR;
+	}
 
 	return BENCH_SUCCESS;
 }
@@ -164,15 +190,19 @@ int bench_thread_spawn(int thread_id, const char *thread_name, int priority,
 	 */
 
 	BaseType_t ret;
+	TaskHandle_t  handle;
 
-	if ((thread_id < 0) || (thread_id > MAX_THREADS)) {
+	if (thread_id < 0 || thread_id > MAX_THREADS)
 		return BENCH_ERROR;
-	}
 
-	ret = xTaskCreate(entry_function, thread_name, STACK_SIZE, args,
-			  map_prio(priority), &threads[thread_id]);
+	handle = xTaskCreateStatic(entry_function, thread_name, STACK_SIZE,
+				   args, map_prio(priority),
+				   stack_buffer[thread_id],
+				   &task_buffer[thread_id]);
 
-	if (ret != pdPASS) {
+	threads[thread_id] = handle;
+
+	if (handle == NULL) {
 		return BENCH_ERROR;
 	}
 
@@ -203,7 +233,8 @@ int bench_mutex_create(int mutex_id)
 {
 	assert(mutex_id < MAX_MUTEXES);
 
-	mutexes[mutex_id] = xSemaphoreCreateRecursiveMutex();
+	mutexes[mutex_id] =
+		xSemaphoreCreateRecursiveMutexStatic(&mutex_buffers[mutex_id]);
 }
 
 int bench_mutex_lock(int mutex_id)
@@ -229,4 +260,48 @@ void bench_sleep(uint32_t msec)
 {
 	TickType_t delay = msec / portTICK_PERIOD_MS;
 	vTaskDelay(delay);
+}
+
+/*
+ * The following items are necessary as SUPPORT_STATIC_ALLOCATION is 1.
+ * This means that the application must define the necessary task
+ * information for the idle task.
+ */
+
+static StaticTask_t xIdleTaskTCBBuffer;
+static StackType_t xIdleStack[STACK_SIZE];
+				   
+/**
+ * @brief Application defined routine to obtain IDLE task basics
+ *
+ * This routine is invoked directly by FreeRTOS as a call-out to the
+ * application. FreeRTOS needs to get information from the application
+ * about how to initialize the idle task.
+ */
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
+				   StackType_t **ppxIdleTaskStackBuffer,
+				   uint32_t *pulIdleTaskStackSize)
+{
+	*ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+	*ppxIdleTaskStackBuffer = xIdleStack;
+	*pulIdleTaskStackSize = STACK_SIZE;
+}
+
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[STACK_SIZE];
+
+/**
+ * @brief Application defined routine to obtain TIMER task basics
+ *
+ * This routine is invoked directly by FreeRTOS as a call-out to the
+ * application. FreeRTOS needs to get information from the application
+ * about how to initialize the timer task.
+ */
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
+				    StackType_t **ppxTimerTaskStackBuffer,
+				    uint32_t *pulTimerTaskStackSize)
+{
+	*ppxTimerTaskTCBBuffer = &xIdleTaskTCBBuffer;
+	*ppxTimerTaskStackBuffer = xIdleStack;
+	*pulTimerTaskStackSize = STACK_SIZE;
 }
