@@ -256,12 +256,6 @@ void bench_thread_exit(void)
 	vTaskDelete(NULL);
 }
 
-void bench_sleep(uint32_t msec)
-{
-	TickType_t delay = msec / portTICK_PERIOD_MS;
-	vTaskDelay(delay);
-}
-
 /*
  * The following items are necessary as SUPPORT_STATIC_ALLOCATION is 1.
  * This means that the application must define the necessary task

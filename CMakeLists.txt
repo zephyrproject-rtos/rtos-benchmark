@@ -18,12 +18,6 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DITERATIONS=${ITERATIONS}")
 set(CALIBRATION_LOOPS 10000 CACHE STRING "Number of calibration loops for each test")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DCALIBRATION_LOOPS=${CALIBRATION_LOOPS}")
 
-option(THINKER "If unrelated code should be executed between two iterations" OFF)
-if (THINKER)
-    set(THINKER_STEPS 10 CACHE STRING "Number of iterations of thinker algorithm")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTHINKER_STEPS=${THINKER_STEPS} -DTHINKER_ENABLED")
-endif()
-
 if (NOT RTOS IN_LIST AVAILABLE_RTOSES)
     message(FATAL_ERROR "Choose either [zephyr] or [freertos]")
 endif()

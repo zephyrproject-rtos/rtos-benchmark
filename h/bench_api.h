@@ -351,10 +351,4 @@ uint32_t bench_timer_cycles_per_second(void);
  */
 uint32_t bench_timer_cycles_per_tick(void);
 
-/**
- * @brief Sleep current thread
- *
- * @param msec Time in milliseconds that current thread will sleep
- */
-void bench_sleep(uint32_t msec);
 #endif /* BENCH_API_H */

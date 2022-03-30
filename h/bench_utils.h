@@ -46,10 +46,4 @@ void bench_stats_report_line(const char *summary, const struct bench_stats *stat
  */
 void bench_stats_report_na(const char *summary);
 
-#ifdef THINKER_ENABLED
-void thinker(void);
-#else
-#define thinker() do { } while (false)
-#endif
-
 #endif
