@@ -53,12 +53,12 @@ static struct bench_stats time_to_spawn;     /* time to spawn a thread */
  */
 static void reset_time_stats(void)
 {
+	bench_stats_reset(&time_to_spawn);
 	bench_stats_reset(&time_to_create);
 	bench_stats_reset(&time_to_start);
 	bench_stats_reset(&time_to_suspend);
 	bench_stats_reset(&time_to_resume);
 	bench_stats_reset(&time_to_terminate);
-	bench_stats_reset(&time_to_spawn);
 }
 
 /**
@@ -290,6 +290,13 @@ void bench_basic_thread_ops(void *arg)
 		gather_set1_stats(MAIN_PRIORITY, i);
 	}
 
+#if RTOS_HAS_THREAD_SPAWN
+	bench_stats_report_line("Spawn (no context switch)",
+				&time_to_spawn);
+#else
+	bench_stats_report_na("Spawn (no context switch)");
+#endif
+
 #if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_report_line("Create (no context switch)",
 				&time_to_create);
@@ -307,12 +314,6 @@ void bench_basic_thread_ops(void *arg)
 				&time_to_suspend);
 	bench_stats_report_line("Resume (no context switch)",
 				&time_to_resume);
-#if RTOS_HAS_THREAD_SPAWN
-	bench_stats_report_line("Spawn (no context switch)",
-				&time_to_spawn);
-#else
-	bench_stats_report_na("Spawn (no context switch)");
-#endif
 
 	/*
 	 * Gather stats for basic thread operations for where there are
@@ -327,6 +328,13 @@ void bench_basic_thread_ops(void *arg)
 
 	bench_timing_stop();
 
+#if RTOS_HAS_THREAD_SPAWN
+	bench_stats_report_line("Spawn (context switch)",
+				&time_to_spawn);
+#else
+	bench_stats_report_na("Spawn (context switch)");
+#endif
+
 #if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_report_line("Start  (context switch)",
 				&time_to_start);
@@ -339,12 +347,6 @@ void bench_basic_thread_ops(void *arg)
 				&time_to_resume);
 	bench_stats_report_line("Terminate (context switch)",
 				&time_to_terminate);
-#if RTOS_HAS_THREAD_SPAWN
-	bench_stats_report_line("Spawn (context switch)",
-				&time_to_spawn);
-#else
-	bench_stats_report_na("Spawn (context switch)");
-#endif
 }
 
 #ifdef RUN_THREAD
