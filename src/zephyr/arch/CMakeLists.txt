@@ -1,5 +1,7 @@
 if (CONFIG_ARM)
     add_subdirectory(arm)
+elseif (CONFIG_X86)
+    add_subdirectory(x86)
 else()
     message(FATAL_ERROR "Unknown Zephyr architecture!")
 endif()
