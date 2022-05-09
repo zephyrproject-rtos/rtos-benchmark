@@ -7,28 +7,16 @@
 
 void bench_stats_reset(struct bench_stats *stats)
 {
-	bench_time_t start, end;
-	uint32_t i;
-
 	stats->avg = 0;
 	stats->min = (bench_time_t) -1;
 	stats->max = 0;
 	stats->total = 0;
-
-	start = bench_timing_counter_get();
-	for (i = 0; i < CALIBRATION_LOOPS; i++)
-		bench_timing_counter_get();
-	end = bench_timing_counter_get();
-
-	stats->calibration = bench_timing_cycles_get(&start, &end) / CALIBRATION_LOOPS;
 }
 
 void bench_stats_update(struct bench_stats *stats, bench_time_t value,
 			uint32_t iteration)
 {
 	assert(iteration != 0);
-
-	value -= stats->calibration;
 
 	if (value < stats->min)
 		stats->min = value;

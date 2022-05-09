@@ -23,7 +23,6 @@ struct bench_stats {
 	bench_time_t min;
 	bench_time_t max;
 	bench_time_t total;
-	bench_time_t calibration;
 };
 
 void bench_stats_reset(struct bench_stats *stats);
