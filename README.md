@@ -1,9 +1,14 @@
 # README
 
-The benchmark project contains a set of tests aimed to measure the
-performance of certain OS operations. It currently supports Zephyr
-and FreeRTOS. Tests are expected to be executed on a
-FRDM-K64F board.
+The benchmark project contains a set of tests aimed to measure the performance
+of certain OS operations. It currently supports both the qemu_x86 and frdm_k64f
+boards on Zephyr and only the frdm_k64f board on FreeRTOS. Additional boards
+and RTOSes are expected to be added in the future.
+
+It is recognized that running a benchmark test suite on QEMU is not generally
+recommended, and any results from that should be taken with a grain of salt.
+That being said, the primary reason it has been added has been to act as a
+blueprint for integrating additional boards and architectures.
 
 ## Setting Up
 
@@ -50,6 +55,15 @@ Install [pyOCD](https://github.com/pyocd/pyOCD) - tool used to flash FRDM_K64F.
 cmake -GNinja -DRTOS=zephyr -DBOARD=frdm_k64f -S . -B build
 ninja -C build
 ninja -C build flash
+```
+
+#### Zephyr on other boards
+
+Similar steps apply to when building for a different board. In the `cmake`
+command, specify the name of the board after `-DBOARD`. For example ...
+
+```
+cmake -GNinja -DRTOS=zephyr -DBOARD=qemu_x86 -S . -B build
 ```
 
 Remember that the `ZEPHYR_BASE` environment variable must be set so that the
