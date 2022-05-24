@@ -10,8 +10,11 @@
 #include "../src/zephyr/bench_porting_layer_zephyr.h"
 #endif /* ZEPHYR */
 #ifdef FREERTOS
-#include "../freertos/bench_porting_layer_freertos.h"
+#include "../src/freertos/bench_porting_layer_freertos.h"
 #endif /* FREERTOS */
+#ifdef RTEMS
+#include "../src/rtems/bench_porting_layer_rtems.h"
+#endif
 
 typedef void (*bench_isr_handler_t)(void *arg);
 
