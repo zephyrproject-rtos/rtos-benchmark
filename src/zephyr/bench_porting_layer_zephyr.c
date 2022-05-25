@@ -24,7 +24,6 @@ static K_THREAD_STACK_ARRAY_DEFINE(stacks, MAX_THREADS, STACK_SIZE);
 static struct k_thread threads[MAX_THREADS];
 static struct k_sem semaphores[MAX_SEMAPHORES];
 static struct k_mutex mutexes[MAX_MUTEXES];
-static struct k_work work;
 
 void bench_test_init(void (*test_init_function)(void *))
 {
@@ -93,21 +92,6 @@ void bench_thread_abort(int thread_id)
 void bench_yield(void)
 {
 	k_yield();
-}
-
-void bench_offload_setup(void)
-{
-	// Zephyr has a system workqueue; no setup is required to offload work
-}
-
-void bench_offload_create_work(void (*worker_function)(bench_work *))
-{
-	k_work_init(&work, (k_work_handler_t) worker_function);
-}
-
-void bench_offload_submit_work(void)
-{
-	k_work_submit(&work); // Submit work to system workqueue
 }
 
 void bench_timing_init(void)

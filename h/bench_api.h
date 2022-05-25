@@ -116,31 +116,6 @@ void bench_thread_exit(void);
 void bench_yield(void);
 
 /**
- * @brief Set up to offload work from ISR
- *
- * This routine performs setup to enable \ref bench_offload_submit_work to
- * offload work from ISR to another thread, such as setting up a workqueue to place work items into.
- */
-void bench_offload_setup(void);
-
-/**
- * @brief Initialize the work item representing work to be offloaded from ISR
- *
- * This routine initializes and stores the work item that represents the work to be offloaded.
- *
- * @param worker_function Function to call
- */
-void bench_offload_create_work(void (*worker_function)(bench_work *));
-
-/**
- * @brief Offload work from ISR
- *
- * This routine executes the stored work item on another thread from ISR.
- */
-void bench_offload_submit_work(void);
-
-
-/**
  * @brief Initialize timing
  *
  * This routine performs setup to enable \ref bench_timing_start.
