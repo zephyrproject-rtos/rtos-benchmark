@@ -20,12 +20,14 @@ typedef void * bench_work;
 #define ARG_UNUSED(x) (void)(x)
 
 /*
- * Some RTOSes distinguish between creating, starting and spawning a thread.
- * FreeRTOS does not. Thus creating a thread within FreeRTOS is equivalent
- * to spawning a thread. These macros come into play when reporting results.
+ * Not all RTOSes support the same features. To help simplify the common code
+ * as much as possible, where there are known differences in support, various
+ * aspects of the benchmarking can be enabled/disabled as needed.
  */
 
 #define RTOS_HAS_THREAD_SPAWN         1
 #define RTOS_HAS_THREAD_CREATE_START  0
+#define RTOS_HAS_SUSPEND_RESUME       1
+#define RTOS_HAS_MAIN_ENTRY_POINT     1
 
 #endif /* PORTING_LAYER_FREERTOS_H_ */
