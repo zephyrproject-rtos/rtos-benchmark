@@ -74,6 +74,7 @@ static void bench_set2_helper(void *args)
 
 	helper_end = bench_timing_counter_get();
 
+#if RTOS_HAS_SUSPEND_RESUME
 	/* Start suspending the thread. This causes a context switch. */
 
 	helper_start = helper_end;
@@ -85,6 +86,7 @@ static void bench_set2_helper(void *args)
 	 * as the "starting" timestamp for terminating the helper thread.
 	 */
 
+#endif
 	helper_end = bench_timing_counter_get();
 	helper_start = helper_end;
 
@@ -137,6 +139,7 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 	end = bench_timing_counter_get();
 #endif
 
+#if RTOS_HAS_SUSPEND_RESUME
 	/* Update times for both starting and resuming the thread */
 
 	bench_stats_update(&time_to_start,
@@ -150,6 +153,7 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 
 	start = bench_timing_counter_get();
 	bench_thread_resume(THREAD_HIGH);
+#endif
 
 	/* Helper thread executed and then terminated. */
 
@@ -157,9 +161,12 @@ static void gather_set2_stats(int priority, uint32_t iteration)
 
 	/* Update times for both starting and resuming the thread */
 
+#if RTOS_HAS_SUSPEND_RESUME
 	bench_stats_update(&time_to_resume,
 			   bench_timing_cycles_get(&start, &helper_end),
 			   iteration);
+#endif
+
 	bench_stats_update(&time_to_terminate,
 			   bench_timing_cycles_get(&helper_start, &end),
 			   iteration);
@@ -224,6 +231,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 			   iteration);
 #endif
 
+#if RTOS_HAS_SUSPEND_RESUME
 	/* Suspend the low priority thread (no context switch) */
 
 	start = bench_timing_counter_get();
@@ -241,6 +249,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	bench_stats_update(&time_to_resume,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
+#endif
 
 #if RTOS_HAS_THREAD_SPAWN
 
@@ -310,10 +319,16 @@ void bench_basic_thread_ops(void *arg)
 #else
 	bench_stats_report_na("Start (no context switch)");
 #endif
+
+#if RTOS_HAS_SUSPEND_RESUME
 	bench_stats_report_line("Suspend (no context switch)",
 				&time_to_suspend);
 	bench_stats_report_line("Resume (no context switch)",
 				&time_to_resume);
+#else
+	bench_stats_report_na("Suspend (no context switch)");
+	bench_stats_report_na("Resume (no context switch)");
+#endif
 
 	/*
 	 * Gather stats for basic thread operations for where there are
@@ -341,10 +356,16 @@ void bench_basic_thread_ops(void *arg)
 #else
 	bench_stats_report_na("Start  (context switch)");
 #endif
+
+#if RTOS_HAS_SUSPEND_RESUME
 	bench_stats_report_line("Suspend (context switch)",
 				&time_to_suspend);
 	bench_stats_report_line("Resume (context switch)",
 				&time_to_resume);
+#else
+	bench_stats_report_na("Suspend (context switch)");
+	bench_stats_report_na("Resume (context switch)");
+#endif
 	bench_stats_report_line("Terminate (context switch)",
 				&time_to_terminate);
 }
