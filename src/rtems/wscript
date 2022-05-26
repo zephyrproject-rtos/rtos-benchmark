@@ -1,0 +1,53 @@
+#
+# Hello world Waf script
+#
+from __future__ import print_function
+
+rtems_version = "6"
+
+try:
+    import rtems_waf.rtems as rtems
+    import os
+except:
+    print('error: no rtems_waf git submodule')
+    import sys
+    sys.exit(1)
+
+def init(ctx):
+    rtems.init(ctx, version = rtems_version, long_commands = True)
+
+def bsp_configure(conf, arch_bsp):
+    # Add BSP specific configuration checks
+    pass
+
+def options(opt):
+    rtems.options(opt)
+
+def configure(conf):
+    rtems.configure(conf, bsp_configure = bsp_configure)
+
+def build(bld):
+    rtems.build(bld)
+    project_path = os.path.realpath('../..')
+
+    include_paths = ' -I' + project_path + '/h'
+    defines = " -DRTEMS -DITERATIONS=10000"
+
+    print("My include paths are : " + include_paths)
+
+    bld(features = 'c cprogram',
+        target = 'rtos-benchmark.elf',
+        cflags = '-g -O2' + include_paths + defines,
+        source = ['bench_porting_layer_rtems.c',
+                  'entry.c',
+                  '../common/bench_all.c',
+                  '../common/bench_mutex_lock_unlock_test.c',
+                  '../common/bench_sem_context_switch_test.c',
+                  '../common/bench_sem_signal_release_test.c',
+                  '../common/bench_thread_switch_yield_test.c',
+                  '../common/bench_thread_test.c',
+                  '../common/bench_utils.c',
+                  '../common/bench_interrupt_latency_test.c',
+                  'timer/bench_riscv_machine_timer.c',
+                  'arch/riscv/core/arch_util.c',
+                  'init.c'])
