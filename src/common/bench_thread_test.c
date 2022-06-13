@@ -191,7 +191,7 @@ static void bench_set1_helper(void *args)
 {
 	ARG_UNUSED(args);
 
-	/* This routine is intentionally empty. */
+	bench_thread_exit();
 }
 
 /**
@@ -225,11 +225,9 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	start = bench_timing_counter_get();
 	bench_thread_start(THREAD_LOW);
 	end = bench_timing_counter_get();
-#if RTOS_HAS_THREAD_CREATE_START
 	bench_stats_update(&time_to_start,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
-#endif
 
 #if RTOS_HAS_SUSPEND_RESUME
 	/* Suspend the low priority thread (no context switch) */
@@ -251,6 +249,14 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 			   iteration);
 #endif
 
+	/*
+	 * Lower the priority to let the helper thread self-terminate
+	 * and then restore the priority.
+	 */
+
+	bench_thread_set_priority(priority + 2);
+	bench_thread_set_priority(priority);
+
 #if RTOS_HAS_THREAD_SPAWN
 
 	/* Spawn a low priority thread (no context switch) */
@@ -262,12 +268,9 @@ static void gather_set1_stats(int priority, uint32_t iteration)
 	bench_stats_update(&time_to_spawn,
 			   bench_timing_cycles_get(&start, &end),
 			   iteration);
-#endif
 
-	/* Abort lower priority threads, they have done their job. */
+	/* Abort lower priority thread. */
 
-	bench_thread_abort(THREAD_LOW);
-#if RTOS_HAS_THREAD_SPAWN
 	bench_thread_abort(THREAD_SPAWN);
 #endif
 }
