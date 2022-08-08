@@ -2,17 +2,18 @@
 #include "bench_utils.h"
 
 extern struct _isr_table_entry _sw_isr_table[];
+extern uint32_t riscv_machine_timer_irq;
 
 bench_isr_handler_t bench_timer_isr_get(void)
 {
 
 	/*
 	 * At the current time, it is assumed that the timer interrupt
-	 * is NOT a level 2 interrupt and RISCV_MACHINE_TIMER_IRQ can
+	 * is NOT a level 2 interrupt and riscv_machine_timer_irq can
 	 * simply be an index into _sw_isr_table[].
 	 */
 
-	return (bench_isr_handler_t)_sw_isr_table[RISCV_MACHINE_TIMER_IRQ].isr;
+	return (bench_isr_handler_t)_sw_isr_table[riscv_machine_timer_irq].isr;
 }
 
 uint32_t bench_timer_cycles_per_second(void)
@@ -33,7 +34,7 @@ uint32_t bench_timer_cycles_per_tick(void)
 
 void bench_timer_isr_set(bench_isr_handler_t  isr)
 {
-	_sw_isr_table[RISCV_MACHINE_TIMER_IRQ].isr = (void(*)(const void *))isr;
+	_sw_isr_table[riscv_machine_timer_irq].isr = (void(*)(const void *))isr;
 
 	return;
 }
