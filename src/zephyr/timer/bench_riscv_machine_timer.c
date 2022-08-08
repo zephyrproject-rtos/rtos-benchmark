@@ -9,15 +9,54 @@
 
 #define MIN_DELAY  1000ULL
 
+/* neorv32-machine-timer */
+#if DT_HAS_COMPAT_STATUS_OKAY(andestech_machine_timer)
+#define DT_DRV_COMPAT andestech_machine_timer
+
+#define MTIME_REG	DT_INST_REG_ADDR(0)
+#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
+#define TIMER_IRQN	DT_INST_IRQN(0)
+/* neorv32-machine-timer */
+#elif DT_HAS_COMPAT_STATUS_OKAY(neorv32_machine_timer)
+#define DT_DRV_COMPAT neorv32_machine_timer
+
+#define MTIME_REG	DT_INST_REG_ADDR(0)
+#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
+#define TIMER_IRQN	DT_INST_IRQN(0)
+/* nuclei,systimer */
+#elif DT_HAS_COMPAT_STATUS_OKAY(nuclei_systimer)
+#define DT_DRV_COMPAT nuclei_systimer
+
+#define MTIME_REG	DT_INST_REG_ADDR(0)
+#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
+#define TIMER_IRQN	DT_INST_IRQN(0)
+/* sifive,clint0 */
+#elif DT_HAS_COMPAT_STATUS_OKAY(sifive_clint0)
+#define DT_DRV_COMPAT sifive_clint0
+
+#define MTIME_REG	(DT_INST_REG_ADDR(0) + 0xbff8U)
+#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 0x4000U)
+#define TIMER_IRQN	DT_INST_IRQ_BY_IDX(0, 1, irq)
+/* telink,machine-timer */
+#elif DT_HAS_COMPAT_STATUS_OKAY(telink_machine_timer)
+#define DT_DRV_COMPAT telink_machine_timer
+
+#define MTIME_REG	DT_INST_REG_ADDR(0)
+#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
+#define TIMER_IRQN	DT_INST_IRQN(0)
+#endif
+
+uint32_t riscv_machine_timer_irq = TIMER_IRQN;
+
 /**
  * @brief Read the current cycle count from the MTIME register
  */
 static uint64_t mtime(void)
 {
 #ifdef CONFIG_64BIT
-        return *(volatile uint64_t *)RISCV_MTIME_BASE;
+        return *(volatile uint64_t *)MTIME_REG;
 #else
-        volatile uint32_t *r = (uint32_t *)RISCV_MTIME_BASE;
+        volatile uint32_t *r = (uint32_t *)MTIME_REG;
         uint32_t  lo;
         uint32_t  hi;
 
@@ -32,7 +71,7 @@ static uint64_t mtime(void)
 
 static uint64_t get_hart_mtimecmp(void)
 {
-	return RISCV_MTIMECMP_BASE + (_current_cpu->id * 8);
+	return MTIMECMP_REG + (_current_cpu->id * 8);
 }
 
 /**
