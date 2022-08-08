@@ -1,4 +1,4 @@
-#include <arch/arm/aarch32/cortex_m/cmsis.h>
+#include <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
 
 #include "bench_api.h"
 #include "bench_utils.h"
