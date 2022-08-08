@@ -3,9 +3,9 @@
 #ifndef PORTING_LAYER_ZEPHYR_H_
 #define PORTING_LAYER_ZEPHYR_H_
 
-#include <zephyr.h>
-#include <kernel.h>
-#include <timing/timing.h>
+#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
+#include <zephyr/timing/timing.h>
 #include <stdio.h>
 
 typedef timing_t bench_time_t;
