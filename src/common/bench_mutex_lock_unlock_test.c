@@ -318,7 +318,7 @@ static void gather_pend_stats(int priority, uint32_t iteration)
 
 	bench_mutex_unlock(MUTEX_ID);
 
-	bench_thread_set_priority(priority + 2);
+	bench_thread_set_priority(priority + 3);
 
 	/* Step 9 */
 
