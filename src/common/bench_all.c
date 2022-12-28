@@ -9,6 +9,7 @@ extern void bench_mutex_lock_unlock_test(void *arg);
 extern void bench_sem_context_switch_init(void *arg);
 extern void bench_sem_signal_release_init(void *arg);
 extern void bench_thread_yield(void *arg);
+extern void bench_malloc_free(void *arg);
 
 void bench_all(void *arg)
 {
@@ -20,6 +21,7 @@ void bench_all(void *arg)
 	bench_sem_signal_release_init(arg);
 	bench_thread_yield(arg);
 	bench_interrupt_latency_test(arg);
+	bench_malloc_free(arg);
 
 	PRINTF("\n\r *** Done! ***\n\r");
 }
