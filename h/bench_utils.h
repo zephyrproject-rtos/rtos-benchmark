@@ -20,6 +20,9 @@
 #ifdef RTEMS
 #include "../src/rtems/bench_porting_layer_rtems.h"
 #endif /* RTEMS */
+#ifdef __NuttX__
+#include "../src/nuttx/bench_porting_layer_nuttx.h"
+#endif /* __NuttX__ */
 
 struct bench_stats {
 	bench_time_t avg;

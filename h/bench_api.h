@@ -15,6 +15,9 @@
 #ifdef RTEMS
 #include "../src/rtems/bench_porting_layer_rtems.h"
 #endif
+#ifdef __NuttX__
+#include "../src/nuttx/bench_porting_layer_nuttx.h"
+#endif /* __NuttX__ */
 
 typedef void (*bench_isr_handler_t)(void *arg);
 
