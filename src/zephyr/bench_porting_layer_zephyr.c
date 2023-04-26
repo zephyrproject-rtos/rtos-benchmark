@@ -2,7 +2,7 @@
 
 #include "bench_api.h"
 #include "bench_porting_layer_zephyr.h"
-#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
 #include <zephyr/timing/timing.h>
 #include <zephyr/irq_offload.h>
 

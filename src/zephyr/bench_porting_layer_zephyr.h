@@ -3,7 +3,6 @@
 #ifndef PORTING_LAYER_ZEPHYR_H_
 #define PORTING_LAYER_ZEPHYR_H_
 
-#include <zephyr/zephyr.h>
 #include <zephyr/kernel.h>
 #include <zephyr/timing/timing.h>
 #include <stdio.h>
