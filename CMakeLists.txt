@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 set(AVAILABLE_TESTS
     interrupt_latency
+    malloc_free
     mutex_lock_unlock
     sem_context_switch
     sem_signal_release
