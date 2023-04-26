@@ -20,8 +20,11 @@ void bench_all(void *arg)
 	bench_sem_context_switch_init(arg);
 	bench_sem_signal_release_init(arg);
 	bench_thread_yield(arg);
-	bench_interrupt_latency_test(arg);
 	bench_malloc_free(arg);
+
+	/* This should be the last test as it can muck with the timer */
+
+	bench_interrupt_latency_test(arg);
 
 	PRINTF("\n\r *** Done! ***\n\r");
 }
