@@ -38,6 +38,11 @@ static StaticTask_t init_task_buffer;
 static SemaphoreHandle_t mutexes[MAX_MUTEXES];
 static StaticSemaphore_t mutex_buffers[MAX_MUTEXES];
 
+static TaskHandle_t threads_to_remove[MAX_THREADS];
+static int threads_to_remove_idx;
+static SemaphoreHandle_t to_remove_sem;
+static StaticSemaphore_t to_remove_sem_buf;
+
 #define benchmark_task_PRIORITY (configMAX_PRIORITIES - 1)
 
 void bench_test_init(void (*test_init_function)(void *))
@@ -49,6 +54,8 @@ void bench_test_init(void (*test_init_function)(void *))
 	BOARD_InitBootClocks();
 	BOARD_InitDebugConsole();
 
+	to_remove_sem = xSemaphoreCreateCountingStatic(1, 0,
+						       &to_remove_sem_buf);
 	handle = xTaskCreateStatic(test_init_function, "benchmark", STACK_SIZE,
 				   NULL, benchmark_task_PRIORITY,
 				   init_stack_buffer, &init_task_buffer);
@@ -253,7 +260,15 @@ void bench_sync_ticks(void)
 
 void bench_thread_exit(void)
 {
-	vTaskDelete(NULL);
+	threads_to_remove[threads_to_remove_idx++] = xTaskGetCurrentTaskHandle();
+	xSemaphoreTake(to_remove_sem, portMAX_DELAY);
+}
+
+void bench_collect_resources(void)
+{
+	while (threads_to_remove_idx) {
+		vTaskDelete(threads_to_remove[--threads_to_remove_idx]);
+	}
 }
 
 /*
