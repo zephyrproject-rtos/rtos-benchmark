@@ -82,6 +82,7 @@ void bench_sem_context_switch_init(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		bench_sem_context_switch_low_prio_give(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	bench_stats_report_line("Take (context switch)", &take_times);

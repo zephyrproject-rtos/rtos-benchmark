@@ -45,3 +45,8 @@ void bench_stats_report_na(const char *summary)
 {
 	PRINTF(" %-40s: %6s, %6s, %6s\n\r", summary, "n/a", "n/a", "n/a");
 }
+
+__weak void bench_collect_resources(void)
+{
+	// NO-Op
+}

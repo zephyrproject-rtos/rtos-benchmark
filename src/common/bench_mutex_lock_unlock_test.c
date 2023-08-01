@@ -404,18 +404,22 @@ void bench_mutex_lock_unlock_test(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_unpend_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_unpend_inheritance_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_pend_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_pend_inheritance_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	report_stats();

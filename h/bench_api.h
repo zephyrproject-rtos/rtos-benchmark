@@ -332,4 +332,14 @@ uint32_t bench_timer_cycles_per_second(void);
  */
 uint32_t bench_timer_cycles_per_tick(void);
 
+
+/**
+ * @brief Provides an opportunity to collect resources.
+ *
+ * Some RTOSes need an opportunity to collect used resources - for instance,
+ * run the idle thread or some sort of collector.
+ *
+ */
+void bench_collect_resources(void);
+
 #endif /* BENCH_API_H */

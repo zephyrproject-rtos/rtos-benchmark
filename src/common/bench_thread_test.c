@@ -300,6 +300,7 @@ void bench_basic_thread_ops(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 #if RTOS_HAS_THREAD_SPAWN
@@ -342,6 +343,7 @@ void bench_basic_thread_ops(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	bench_timing_stop();
