@@ -47,6 +47,10 @@ unzip ~/Downloads/SDK_<version>_FRDM-K64F.zip -d <SDK Install Dir>/SDK_<version>
 
 Install [pyOCD](https://github.com/pyocd/pyOCD) - tool used to flash FRDM_K64F.
 
+### VxWorks Specifics
+
+Install VxWorks version later than 24.03 (including).
+
 ## Building and Flashing
 
 ### Zephyr on FRDM K64F
@@ -76,6 +80,40 @@ cmake -GNinja -DRTOS=freertos -DBOARD=frdm_k64f -DMCUX_SDK_PATH=<SDK Install Dir
 ninja -C build
 ninja -C build flash
 ```
+
+### VxWorks
+
+VxWorks supports to run rtos-benchmark for either POSIX interfaces,
+or non-POSIX interfaces at user space on difference boards.
+For example with the BSP `nxp_s32g274`:
+
+#### Create and build VSB
+
+```
+vxprj vsb create -force -S -bsp nxp_s32g274 vsb_nxp_s32g274
+cd vsb_nxp_s32g274
+vxprj vsb config -s -add _WRS_CONFIG_RTOS_BENCHMARK=y
+make
+```
+
+#### Create and build VIP
+
+The followings are the steps for POSIX interfaces. To test non-POSIX interfaces,
+just replace `INCLUDE_RTOS_BENCHMARK_POSIX` with `INCLUDE_RTOS_BENCHMARK_NONPOSIX`,
+and replace `rtos_benchmark_posix.vxe` with `rtos_benchmark_non_posix.vxe`.
+
+```
+vxprj create -vsb </path/to/vsb_nxp_s32g274> vip_nxp_s32g274
+cd vip_nxp_s32g274
+vxprj component add INCLUDE_RTOS_BENCHMARK_POSIX
+mkdir romfs
+cp </path/to/vsb_nxp_s32g274/usr/root/llvm/bin/rtos_benchmark_posix.vxe> romfs/
+vxprj parameter set RTOS_BENCHMARK_OPTIONS 1
+vxprj component remove INCLUDE_NETWORK
+vxprj build
+```
+
+Load the image on the target, rtos-benchmark will automatically run on bootup.
 
 ## Connecting
 

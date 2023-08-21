@@ -23,6 +23,9 @@
 #ifdef __NuttX__
 #include "../src/nuttx/bench_porting_layer_nuttx.h"
 #endif /* __NuttX__ */
+#ifdef __VXWORKS__
+#include "../src/vxworks/bench_porting_layer_vxworks.h"
+#endif
 
 struct bench_stats {
 	bench_time_t avg;
