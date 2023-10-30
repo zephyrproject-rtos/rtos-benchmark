@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
 
 	if (argc > 2) {
 		timerType = atoi(argv[1]);
-		timerFreq = (uint64_t) atol(argv[2]);
+		timerFreq = (uint64_t) atoll(argv[2]);
 	} else {
 		PRINTF ("\nWrong parameter number!\n");
 		return -1;
@@ -51,11 +51,13 @@ int main (int argc, char *argv[])
 	PRINTF ("    - Task CPU affinity on core: %d\n", cpuAffIndex);
 	PRINTF ("    - Main task priority: %d\n", rtpMainPri);
 	if (timerType == TIMER_ARM_PMU) {
-		PRINTF ("    - PMU counter (CPU cycle) frequency: %lu Hz\n",
+		PRINTF ("    - PMU counter (CPU cycle) frequency: %llu Hz\n",
 			timerFreq);
 	} else {
-		PRINTF ("    - POSIX high-res clock timer resolution: %lu ns\n",
+		PRINTF ("    - POSIX high-res clock timer resolution: %llu ns\n",
 			res);
+		PRINTF ("        - Timer frequency from clock_gettime(): %llu Hz\n",
+			timerFreq);
 	}
 
 	bench_test_init(bench_all);

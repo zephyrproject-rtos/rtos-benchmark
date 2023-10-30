@@ -24,6 +24,7 @@
 #include <sysLib.h>
 #include <taskLib.h>
 #include <semLib.h>
+#include <msgQLib.h>
 #include <private/schedP.h>
 #include <private/clockLibP.h>
 
@@ -32,6 +33,7 @@
 #define CONFIG_RTOS_BENCHMARK_MAXTHREADS    20
 #define CONFIG_RTOS_BENCHMARK_MAXSEMAPHORES 20
 #define CONFIG_RTOS_BENCHMARK_MAXMUTEXES    10
+#define CONFIG_RTOS_BENCHMARK_MAXMSGQS      20
 
 #define BENCH_LAST_PRIORITY CONFIG_RTOS_BENCHMARK_PRIORITY
 #define ITERATIONS          CONFIG_RTOS_BENCHMARK_ITERATIONS
@@ -46,6 +48,8 @@
  */
 
 #define RTOS_HAS_THREAD_SPAWN         1
+#define RTOS_HAS_MESSAGE_QUEUE        1
+
 #ifdef VXWORKS_POSIX
 #define RTOS_HAS_THREAD_CREATE_START  0
 #define RTOS_HAS_SUSPEND_RESUME       0
@@ -53,6 +57,7 @@
 #define RTOS_HAS_THREAD_CREATE_START  1
 #define RTOS_HAS_SUSPEND_RESUME       1
 #endif /* VXWORKS_POSIX */
+
 #define RTOS_HAS_MAIN_ENTRY_POINT     0
 
 #define NSEC_PER_SEC       1000000000

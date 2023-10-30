@@ -43,7 +43,7 @@ void bench_sem_context_switch_high_prio_take(void *args)
  */
 void bench_sem_context_switch_low_prio_give(int priority, int iteration)
 {
-	uint32_t diff;
+	bench_time_t diff;
 
 	bench_thread_create(1, "high_prio_take", priority - 1,
 			    bench_sem_context_switch_high_prio_take, NULL);

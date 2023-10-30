@@ -21,7 +21,7 @@ static struct bench_stats give_times;
 void bench_sem_signal_release()
 {
 	int i;
-	unsigned int diff;
+	bench_time_t diff;
 	bench_time_t timestamp_start;
 	bench_time_t timestamp_end;
 

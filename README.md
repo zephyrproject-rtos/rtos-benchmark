@@ -90,9 +90,9 @@ For example with the BSP `nxp_s32g274`:
 #### Create and build VSB
 
 ```
-vxprj vsb create -force -S -bsp nxp_s32g274 vsb_nxp_s32g274
+vxprj vsb create -force -S -smp -lp64 -bsp nxp_s32g274 vsb_nxp_s32g274
 cd vsb_nxp_s32g274
-vxprj vsb config -s -add _WRS_CONFIG_RTOS_BENCHMARK=y
+vxprj vsb config -s -add _WRS_CONFIG_BENCHMARKS=y -add _WRS_CONFIG_BENCHMARKS_RTOS_BENCHMARK=y
 make
 ```
 
@@ -109,6 +109,7 @@ vxprj component add INCLUDE_RTOS_BENCHMARK_POSIX
 mkdir romfs
 cp </path/to/vsb_nxp_s32g274/usr/root/llvm/bin/rtos_benchmark_posix.vxe> romfs/
 vxprj parameter set RTOS_BENCHMARK_OPTIONS 1
+vxprj parameter set HIGH_RES_POSIX_CLOCK TRUE (Needed when POSIX clock is used for timestamping)
 vxprj component remove INCLUDE_NETWORK
 vxprj build
 ```

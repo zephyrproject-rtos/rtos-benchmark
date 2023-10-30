@@ -53,7 +53,7 @@ void bench_thread_set_priority(int priority);
  * @param entry_function  Thread entry function.
  * @param args            Entry point parameter representing arguments.
  *
- * @return BENCH_SUCCESS on success or BENCH_FAILURE on failure
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
  */
 int bench_thread_create(int thread_id, const char *thread_name, int priority,
 	void (*entry_function)(void *), void *args);
@@ -186,7 +186,7 @@ bench_time_t bench_timing_cycles_to_ns(bench_time_t cycles);
  * @param sem_id          ID of semaphore (to be used with other routines)
  * @param initial_count   Initial semaphore count
  * @param maximum_count   Maximum permitted semaphore count
- * @return BENCH_SUCCESS on success or BENCH_FAILURE on failure
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
  */
 int bench_sem_create(int sem_id, int initial_count, int maximum_count);
 
@@ -215,7 +215,7 @@ void bench_sem_give_from_isr(int sem_id);
  * never incremented, the routine will wait forever.
  *
  * @param sem_id ID of semaphore
- * @return BENCH_SUCCESS on success or BENCH_FAILURE on failure
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
  */
 int bench_sem_take(int sem_id);
 
@@ -225,7 +225,7 @@ int bench_sem_take(int sem_id);
  * This routine creates a mutex object, prior to its first use.
  *
  * @param mutex_id ID of mutex (to be used with other routines)
- * @return BENCH_SUCCESS on success or BENCH_FAILURE on failure
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
  */
 int bench_mutex_create(int mutex_id);
 
@@ -235,7 +235,7 @@ int bench_mutex_create(int mutex_id);
  * This routine locks a mutex.
  *
  * @param mutex_id ID of mutex
- * @return BENCH_SUCCESS on success or BENCH_FAILURE on failure
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
  */
 int bench_mutex_lock(int mutex_id);
 
@@ -245,7 +245,7 @@ int bench_mutex_lock(int mutex_id);
  * This routine unlocks a mutex.
  *
  * @param mutex_id ID of mutex
- * @return BENCH_SUCCESS on success or BENCH_FAILURE on failure
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
  */
 int bench_mutex_unlock(int mutex_id);
 
@@ -263,6 +263,59 @@ void *bench_malloc(size_t size);
  * @param ptr Pointer to memory allocated with bench_malloc()
  */
 void bench_free(void *ptr);
+
+/**
+ * @brief Create a message queue
+ *
+ * This routine initializes a message queue object, prior to its first use.
+ *
+ * @param mq_id           ID of message queue (to be used with other routines)
+ * @param mq_name         Name of message queue
+ * @param msg_max_num     Max messages can be queued
+ * @param msg_max_len     Max bytes in a message
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
+ */
+int bench_message_queue_create(int mq_id, const char *mq_name,
+	size_t msg_max_num, size_t msg_max_len);
+
+/**
+ * @brief Send a message to a message queue without any timeout period.
+ * If the message queue is full, the routine will wait forever or until space
+ * becomes available to enqueue the message.
+ *
+ * This routine sends a message to a message queue.
+ *
+ * @param mq_id           ID of message queue
+ * @param msg_ptr         Pointer to the message to be sent
+ * @param msg_len         Length of the message to be sent
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
+ */
+int bench_message_queue_send(int mq_id, char *msg_ptr, size_t msg_len);
+
+/**
+ * @brief Receive a message from a message queue without any timeout period.
+ * If no message is available, the routine will wait forever or until a message
+ * is enqueued on the message queue.
+ *
+ * This routine receives a message from a message queue.
+ *
+ * @param mq_id           ID of message queue
+ * @param msg_ptr         Pointer to the buffer to save the message
+ * @param msg_len         Length of the buffer
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
+ */
+int bench_message_queue_receive(int mq_id, char *msg_ptr, size_t msg_len);
+
+/**
+ * @brief Delete a message queue
+ *
+ * This routine deletes a message queue object, and cleans up any resources.
+ *
+ * @param mq_id           ID of message queue
+ * @param mq_name         Name of message queue
+ * @return BENCH_SUCCESS on success or BENCH_ERROR on failure
+ */
+int bench_message_queue_delete(int mq_id, const char *mq_name);
 
 /**
  * @brief Get a pointer to the system tick handler
