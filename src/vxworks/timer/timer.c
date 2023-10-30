@@ -66,6 +66,7 @@ void bench_timer_isr_restore(bench_isr_handler_t handler)
 
 bench_time_t bench_timer_isr_expiry_set(uint32_t usec)
 {
+	return 0;
 }
 
 bench_time_t bench_timer_cycles_diff(bench_time_t trigger, bench_time_t sample)
@@ -75,6 +76,7 @@ bench_time_t bench_timer_cycles_diff(bench_time_t trigger, bench_time_t sample)
 
 bench_time_t bench_timer_cycles_get(void)
 {
+	return 0;
 }
 
 uint32_t bench_timer_cycles_per_second(void)

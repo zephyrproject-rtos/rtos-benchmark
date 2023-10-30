@@ -10,6 +10,7 @@
 static pthread_t       g_bench_threads[CONFIG_RTOS_BENCHMARK_MAXTHREADS];
 static sem_t           g_bench_semaphores[CONFIG_RTOS_BENCHMARK_MAXSEMAPHORES];
 static pthread_mutex_t g_bench_mutex[CONFIG_RTOS_BENCHMARK_MAXMUTEXES];
+static mqd_t           g_bench_msgQ[CONFIG_RTOS_BENCHMARK_MAXMSGQS];
 
 void bench_test_init(void (*test_init_function)(void *))
 {
@@ -68,7 +69,12 @@ int bench_thread_spawn(int thread_id, const char *thread_name,
 			(void *(*)(void *))entry_function, args);
 
 	pthread_attr_destroy (&attr);
-	return ret;
+
+	if (ret != 0) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
 }
 
 void bench_thread_start(int thread_id)
@@ -104,7 +110,11 @@ int bench_sem_create(int sem_id, int initial_count, int maximum_count)
 
 	ret = sem_init(&g_bench_semaphores[sem_id], 0, initial_count);
 
-	return ret;
+	if (ret == ERROR) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
 }
 
 void bench_sem_give(int sem_id)
@@ -122,7 +132,11 @@ int bench_sem_take(int sem_id)
 
 	ret = sem_wait(&g_bench_semaphores[sem_id]);
 
-	return ret;
+	if (ret == ERROR) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
 }
 
 int bench_mutex_create(int mutex_id)
@@ -136,17 +150,37 @@ int bench_mutex_create(int mutex_id)
 	ret = pthread_mutex_init(&g_bench_mutex[mutex_id], &attr);
 	pthread_mutexattr_destroy(&attr);
 
-	return ret;
+	if (ret != 0) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
 }
 
 int bench_mutex_lock(int mutex_id)
 {
-	return pthread_mutex_lock(&g_bench_mutex[mutex_id]);
+	int ret;
+
+	ret = pthread_mutex_lock(&g_bench_mutex[mutex_id]);
+
+	if (ret != 0) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
 }
 
 int bench_mutex_unlock(int mutex_id)
 {
-	return pthread_mutex_unlock(&g_bench_mutex[mutex_id]);
+	int ret;
+
+	ret = pthread_mutex_unlock(&g_bench_mutex[mutex_id]);
+
+	if (ret != 0) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
 }
 
 void * bench_malloc(size_t size)
@@ -158,3 +192,62 @@ void bench_free(void * ptr)
 {
 	free(ptr);
 }
+
+int bench_message_queue_create(int mq_id, const char *mq_name,
+	size_t msg_max_num, size_t msg_max_len)
+{
+	struct mq_attr mqAttr;
+
+	mqAttr.mq_flags = 0;
+	mqAttr.mq_maxmsg = msg_max_num;
+	mqAttr.mq_msgsize = msg_max_len;
+
+	g_bench_msgQ[mq_id] = mq_open(mq_name, O_RDWR | O_CREAT, 0, &mqAttr);
+
+	if (g_bench_msgQ[mq_id] == (mqd_t)-1) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
+int bench_message_queue_send(int mq_id, char *msg_ptr, size_t msg_len)
+{
+	int ret;
+
+	ret = mq_send(g_bench_msgQ[mq_id], msg_ptr, msg_len, MQ_PRIO_MAX - 1);
+
+	if (ret == -1) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
+int bench_message_queue_receive(int mq_id, char *msg_ptr, size_t msg_len)
+{
+	ssize_t ret;
+
+	ret = mq_receive(g_bench_msgQ[mq_id], msg_ptr, msg_len, NULL);
+
+	if (ret == -1) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
+int bench_message_queue_delete(int mq_id, const char *mq_name)
+{
+	STATUS ret;
+
+	ret = mq_close(g_bench_msgQ[mq_id]);
+	ret += mq_unlink(mq_name);
+
+	if (ret != 0) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
