@@ -255,6 +255,7 @@ static void bench_pend_low(void *args)
  */
 static void bench_pend_high(void *args)
 {
+	ARG_UNUSED(args);
 	/* Step 4 */
 
 	helper_start = bench_timing_counter_get();
@@ -373,6 +374,7 @@ static void gather_pend_inheritance_stats(int priority, uint32_t iteration)
  */
 void bench_mutex_lock_unlock_test(void *arg)
 {
+	ARG_UNUSED(arg);
 	uint32_t  i;
 
 	bench_mutex_create(MUTEX_ID);
