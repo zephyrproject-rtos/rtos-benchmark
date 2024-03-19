@@ -280,6 +280,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
  */
 void bench_basic_thread_ops(void *arg)
 {
+	ARG_UNUSED(arg);
 	uint32_t  i;
 
 	bench_timing_init();

@@ -144,6 +144,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
  */
 void bench_thread_yield(void *arg)
 {
+	ARG_UNUSED(arg);
 	uint32_t  i;
 
 	bench_timing_init();
