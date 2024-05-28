@@ -24,7 +24,8 @@
 #define MAX_THREADS 10
 #define STACK_SIZE (configMINIMAL_STACK_SIZE + 200)
 #define MAX_MUTEXES 5
-
+#define MAX_QUEUES 1
+#define QUEUE_SIZE (1)
 
 static SemaphoreHandle_t semaphores[MAX_SEMAPHORES];
 static StaticSemaphore_t semaphore_buffer[MAX_SEMAPHORES];
@@ -42,6 +43,10 @@ static TaskHandle_t threads_to_remove[MAX_THREADS];
 static int threads_to_remove_idx;
 static SemaphoreHandle_t to_remove_sem;
 static StaticSemaphore_t to_remove_sem_buf;
+
+static QueueHandle_t queues[MAX_QUEUES];
+static uint8_t queue_storage[MAX_QUEUES][QUEUE_SIZE];
+static StaticQueue_t queue_buffer[MAX_QUEUES];
 
 #define benchmark_task_PRIORITY (configMAX_PRIORITIES - 1)
 
@@ -269,6 +274,54 @@ void bench_collect_resources(void)
 	while (threads_to_remove_idx) {
 		vTaskDelete(threads_to_remove[--threads_to_remove_idx]);
 	}
+}
+
+int bench_message_queue_create(int mq_id, const char *mq_name,
+	size_t msg_max_num, size_t msg_max_len)
+{
+	configASSERT(msg_max_len <= QUEUE_SIZE);
+
+	queues[mq_id] = xQueueCreateStatic(msg_max_num, msg_max_len,
+		queue_storage[mq_id], &queue_buffer[mq_id]);
+
+	if (queues[mq_id] == NULL) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
+int bench_message_queue_send(int mq_id, char *msg_ptr, size_t msg_len)
+{
+	BaseType_t ret;
+
+	ret = xQueueSend(queues[mq_id], msg_ptr, portMAX_DELAY);
+
+	if (ret != pdPASS) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
+int bench_message_queue_receive(int mq_id, char *msg_ptr, size_t msg_len)
+{
+	BaseType_t ret;
+
+	ret = xQueueReceive(queues[mq_id], msg_ptr, portMAX_DELAY);
+
+	if (ret != pdPASS) {
+		return BENCH_ERROR;
+	}
+
+	return BENCH_SUCCESS;
+}
+
+int bench_message_queue_delete(int mq_id, const char *mq_name)
+{
+	vQueueDelete(queues[mq_id]);
+
+	return BENCH_SUCCESS;
 }
 
 /*
