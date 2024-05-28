@@ -195,6 +195,7 @@ void bench_message_queue_init(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_send_context_switch_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	/* Send one message, so the message queue is full */
@@ -203,6 +204,7 @@ void bench_message_queue_init(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_receive_context_switch_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	bench_message_queue_receive(MQ_ID, msg_rcv_buf, MSG_LEN);
