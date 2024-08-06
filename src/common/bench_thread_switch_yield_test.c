@@ -170,7 +170,7 @@ void bench_thread_yield(void *arg)
 
 	reset_time_stats();
 
-	for (i = 1; i < ITERATIONS; i++) {
+	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
 	}
 
