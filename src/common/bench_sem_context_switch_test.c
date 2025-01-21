@@ -66,6 +66,7 @@ void bench_sem_context_switch_low_prio_give(int priority, int iteration)
  */
 void bench_sem_context_switch_init(void *arg)
 {
+	ARG_UNUSED(arg);
 	int i;
 
 	bench_timing_init();
