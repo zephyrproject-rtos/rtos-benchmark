@@ -161,6 +161,7 @@ static void gather_receive_context_switch_stats(int priority, int iteration)
  */
 void bench_message_queue_init(void *arg)
 {
+	ARG_UNUSED(arg);
 #if RTOS_HAS_MESSAGE_QUEUE
 	int i;
 
