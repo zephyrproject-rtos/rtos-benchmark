@@ -1,3 +1,6 @@
+
+\[ [English] | [简体中文](README_zh-cn.md) \]
+
 # README
 
 The benchmark project contains a set of tests aimed to measure the performance
