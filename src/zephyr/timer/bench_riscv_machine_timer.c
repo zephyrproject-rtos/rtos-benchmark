@@ -9,42 +9,11 @@
 
 #define MIN_DELAY  1000ULL
 
-/* neorv32-machine-timer */
-#if DT_HAS_COMPAT_STATUS_OKAY(andestech_machine_timer)
-#define DT_DRV_COMPAT andestech_machine_timer
+#define DT_DRV_COMPAT riscv_machine_timer
 
-#define MTIME_REG	DT_INST_REG_ADDR(0)
-#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
-#define TIMER_IRQN	DT_INST_IRQN(0)
-/* neorv32-machine-timer */
-#elif DT_HAS_COMPAT_STATUS_OKAY(neorv32_machine_timer)
-#define DT_DRV_COMPAT neorv32_machine_timer
-
-#define MTIME_REG	DT_INST_REG_ADDR(0)
-#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
-#define TIMER_IRQN	DT_INST_IRQN(0)
-/* nuclei,systimer */
-#elif DT_HAS_COMPAT_STATUS_OKAY(nuclei_systimer)
-#define DT_DRV_COMPAT nuclei_systimer
-
-#define MTIME_REG	DT_INST_REG_ADDR(0)
-#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
-#define TIMER_IRQN	DT_INST_IRQN(0)
-/* sifive,clint0 */
-#elif DT_HAS_COMPAT_STATUS_OKAY(sifive_clint0)
-#define DT_DRV_COMPAT sifive_clint0
-
-#define MTIME_REG	(DT_INST_REG_ADDR(0) + 0xbff8U)
-#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 0x4000U)
-#define TIMER_IRQN	DT_INST_IRQ_BY_IDX(0, 1, irq)
-/* telink,machine-timer */
-#elif DT_HAS_COMPAT_STATUS_OKAY(telink_machine_timer)
-#define DT_DRV_COMPAT telink_machine_timer
-
-#define MTIME_REG	DT_INST_REG_ADDR(0)
-#define MTIMECMP_REG	(DT_INST_REG_ADDR(0) + 8)
-#define TIMER_IRQN	DT_INST_IRQN(0)
-#endif
+#define MTIME_REG    DT_INST_REG_ADDR_BY_NAME(0, mtime)
+#define MTIMECMP_REG DT_INST_REG_ADDR_BY_NAME(0, mtimecmp)
+#define TIMER_IRQN   DT_INST_IRQN(0)
 
 uint32_t riscv_machine_timer_irq = TIMER_IRQN;
 
