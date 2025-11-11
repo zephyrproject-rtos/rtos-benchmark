@@ -144,6 +144,7 @@ static void gather_set1_stats(int priority, uint32_t iteration)
  */
 void bench_thread_yield(void *arg)
 {
+	ARG_UNUSED(arg);
 	uint32_t  i;
 
 	bench_timing_init();
@@ -164,6 +165,7 @@ void bench_thread_yield(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set1_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	bench_stats_report_line("Yield (no context switch)", &time_to_yield);
@@ -172,6 +174,7 @@ void bench_thread_yield(void *arg)
 
 	for (i = 1; i <= ITERATIONS; i++) {
 		gather_set2_stats(MAIN_PRIORITY, i);
+		bench_collect_resources();
 	}
 
 	bench_timing_stop();

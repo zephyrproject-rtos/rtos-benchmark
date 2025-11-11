@@ -64,6 +64,7 @@ void bench_sem_signal_release()
  */
 void bench_sem_signal_release_init(void *param)
 {
+	ARG_UNUSED(param);
 	bench_timing_init();
 
 	bench_sem_create(0, 0, ITERATIONS);
