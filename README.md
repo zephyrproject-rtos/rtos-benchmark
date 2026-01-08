@@ -57,9 +57,18 @@ Install VxWorks version later than 24.03 (including).
 
 ```
 cmake -GNinja -DRTOS=zephyr -DBOARD=frdm_k64f -S . -B build
-ninja -C build
-ninja -C build flash
+west build
+west flash
 ```
+
+### Zephyr on QEMU
+
+```
+cmake -GNinja -DRTOS=zephyr -DBOARD=qemu_riscv32 -S . -B build
+west build -t run
+```
+
+This will immediately run QEMU (if installed) at the end of the build.
 
 #### Zephyr on other boards
 
