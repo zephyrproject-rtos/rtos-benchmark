@@ -15,7 +15,7 @@
 #define MTIMECMP_REG DT_INST_REG_ADDR_BY_NAME(0, mtimecmp)
 #define TIMER_IRQN   DT_INST_IRQN(0)
 
-uint32_t riscv_machine_timer_irq = TIMER_IRQN;
+const uint32_t riscv_timer_irq = TIMER_IRQN;
 
 /**
  * @brief Read the current cycle count from the MTIME register
@@ -113,4 +113,18 @@ bench_time_t bench_timer_isr_expiry_set(uint32_t usec)
 void bench_timer_isr_restore(bench_isr_handler_t handler)
 {
 	bench_timer_isr_set(handler);
+}
+
+/**
+ * @brief Get cycles per tick
+ */
+uint32_t bench_timer_cycles_per_tick(void)
+{
+	uint64_t cyc_per_tick;
+
+	cyc_per_tick = (uint64_t) bench_timer_cycles_per_second();
+	cyc_per_tick >>= CONFIG_RISCV_MACHINE_TIMER_SYSTEM_CLOCK_DIVIDER;
+	cyc_per_tick /= CONFIG_SYS_CLOCK_TICKS_PER_SEC;
+
+	return (uint32_t) cyc_per_tick;
 }
