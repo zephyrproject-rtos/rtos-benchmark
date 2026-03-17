@@ -57,6 +57,7 @@ __weak void bench_exit_timer_isr(void)
  */
 static void irq_latency_isr(void *arg)
 {
+	ARG_UNUSED(arg);
 	bench_isr_cycles = bench_timer_cycles_get();
 
 	diff_cycles = bench_timer_cycles_diff(bench_trigger_cycles,
@@ -126,6 +127,7 @@ static void bench_thread_low(void *args)
  */
 void bench_interrupt_latency_test(void *arg)
 {
+	ARG_UNUSED(arg);
 	uint32_t  i;
 
 	bench_stats_reset(&latency_times);
